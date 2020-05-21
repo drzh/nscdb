@@ -60,11 +60,10 @@ else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type =
 }
 
 // query 
-echo $sql, '<br>';
-$res = $conn -> query($sql);
-if ($res -> num_rows > 0) {
+/* echo $sql, '<br>'; */
+if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
   // output
-  echo "<table class='tf_table'>";
+  echo "<table class='nsc_table'>";
   echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Gene Name</th><th>Symbol</th></tr></thead>";
   echo "<tbody>";
   while($row = $res -> fetch_assoc()) {

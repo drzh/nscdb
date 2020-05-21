@@ -205,26 +205,60 @@
     background-color: #eaf2d3;
 }
 
-.tf_table {
+.nsc_table {
     font-family: verdana, arial, helvetica, sans-serif;
     width: 100%;
     border-collapse: collapse;
-    text-align: center;
 }
 
-.tf_table th {
+.nsc_table th {
     font-size: 1em;
     padding-top: 5px;
     padding-bottom: 5px;
     background-color: #a7c942;
     border: 1px solid #9bbf21;
-    padding: 3px 7px 2px 7px;
+    padding: 5px 10px 5px 10px;
+    text-align: left;
 }
 
-.tf_table td {
+.nsc_table td {
     font-size: 1em;
     border: 1px solid #98bf21;
-    padding: 3px 7px 2px 7px;
+    padding: 5px 10px 5px 10px;
+}
+
+.inner_table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inner_table td {
+    font-size: 1em;
+    border: 0px solid #98bf21;
+    padding: 0px 0px 0px 0px;
+}
+
+.cds {
+    font-family: Consolas,monaco,monospace;
+    font-size: 1.2em;
+    white-space: pre;
+}
+
+.pep {
+    font-family: Consolas,monaco,monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    /* color: green; */
+    white-space: pre;
+    padding-bottom: 10px;
+}
+
+.mut {
+    color: red;
+}
+
+.codon {
+    color: blue;
 }
 
 .tf_table td.alt {
