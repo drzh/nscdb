@@ -48,15 +48,25 @@ else if (preg_match('/^(N[MR]_\d{6})(\.\d+)*$/', $kw, $mat)) {
 }
 
 // generate sql
+$sqls = [];
 $col = 'nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol';
 if ($type == 'pos') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos;";
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos" . $sqllimit;
+  array_push($sqls, $sql);
 }
 else if ($type == 'region') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2;";
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2" . $sqllimit;
+  array_push($sqls, $sql);
 }
 else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type == 'refseq_id') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m';";
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m'" . $sqllimit;
+  array_push($sqls, $sql);
+}
+else {
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$kw' or gene.symbol = '$kw')" . $sqllimit;
+  array_push($sqls, $sql);
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against ('Homo sapiens cyclic nucleotide gated channel subunit alpha 2 (CNGA2), mRNA' in natural language mode)" . $sqllimit;
+  array_push($sqls, $sql);
 }
 
 // query 
@@ -64,7 +74,7 @@ else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type =
 if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
   // output
   echo "<table class='nsc_table'>";
-  echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Gene Name</th><th>Symbol</th></tr></thead>";
+  echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Position<br>of new stop codon</th><th>Symbol</th></tr></thead>";
   echo "<tbody>";
   while($row = $res -> fetch_assoc()) {
     #echo $row['chr'], ' ', $row['pos'], ' ', $row['ref'], ' ', $row['alt'], ' ',  $row['str'], ' ', $row['tid'], '<br>';
@@ -76,8 +86,8 @@ if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
     echo "<td>", $row['tid'], "</td>";
     echo "<td>", $row['t_pos'], "</td>";
     echo "<td>", $row['frame'], "</td>";
-    /* echo "<td>", $row['gid'], "</td>"; */
-    echo "<td>", $row['gname'], "</td>";
+    echo "<td>", $row['nsc_end'], "</td>";
+    /* echo "<td>", $row['gname'], "</td>"; */
     echo "<td>", $row['symbol'], "</td>";
     echo "</tr>";
   }

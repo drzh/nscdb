@@ -40,6 +40,8 @@ else {
   $flag = 0;
 }
 
+$sqllimit = " limit 100;";
+
 $na = "N.A.";
 
 if ($flag == 1) {
@@ -80,6 +82,7 @@ if ($flag == 1) {
     $tb_ucsc_id = array_key_exists('ucsc_id', $row) ? $row['ucsc_id'] : $na;
     $tb_refseq_id = array_key_exists('refseq_id', $row) ? $row['refseq_id'] : $na;
     $tb_symbol = array_key_exists('symbol', $row) ? $row['symbol'] : $na;
+    $tb_des = array_key_exists('des', $row) ? $row['des'] : $na;
   }
   $f_1000g = 0;
   $sql = "select * from pop_1000g where chr = '$chr' and pos = $pos and alt = '$alt';";
@@ -147,6 +150,7 @@ if ($flag == 1) {
     echo "N.A.";
   }
   echo "</td></tr>";
+  echo "<tr><th>Description</th><td>$tb_des</td></tr>";
   echo "</table>";
   echo "<br>";
 
@@ -161,17 +165,18 @@ if ($flag == 1) {
     $seq = $row['seq'];
   }
   echo "<table class='nsc_table'>";
-  echo "<tr><th>Sequence</th></tr>";
-  echo "<tr><td>";
+  echo "<tr><th>Novel CDS and Peptide</th></tr>";
+  echo "<tr><td align='center'>";
+  echo "<table><tr><td style='border:0px;'>";
   $nbeforecodon = 6;
-  $nperline = 60;
+  $nperline = 66;
   $i = 0;
   $n = 0;
   $cds = '';
   $pep = '';
   $new_cds = $seq;
   $new_pep = $tb_new_pep;
-  $diff = $newstart_pos - 1 - $nbeforecodon;
+  $diff = $nbeforecodon - $newstart_pos + 1;
   if ($diff > 0) {
     $new_cds = str_repeat(' ', $diff) . $new_cds;
     $alt_pos += $diff;
@@ -182,32 +187,68 @@ if ($flag == 1) {
   $new_pep = str_repeat(' ', $nbeforecodon / 3) . $new_pep;
   $new_cds = substr_replace($new_cds, $tb_t_alt, $alt_pos - 1, 1);
   $cdslen = strlen($new_cds);
-  /* echo "$new_cds<br>$new_pep<br>"; */
-  /* echo "<span class='cds'>"; */
-  while ($i * 3 < $cdslen) {
-    if ($i * 3 == $newstart_pos - 1) {
-      $cds = $cds . "<span class='mut'>" . substr($new_cds, $i * 3, 3) . "</span>" . " ";
-      /* $pep = $pep . " <span class='mut'>" . substr($new_pep, $i, 1) . "</span>  "; */
+
+  // generate the position and mutation
+  $t_pos_str = strval($tb_t_pos);
+  $t_pos_len = strlen($t_pos_str);
+  echo "<div class='nuc'>", str_repeat(' ', $alt_pos - $t_pos_len - 2), "$tb_t_pos.$tb_t_ref>$tb_t_alt</div>";
+  echo "<div class='nuc'>", str_repeat(' ', $alt_pos - 1), "&darr;</div>";
+  $j = 0;
+  while ($i < $cdslen) {
+    // ----- newstart span begin -----
+    if ($i == $newstart_pos - 1) {
+      $cds .= "<span class='newstart'>";
+      $pep = $pep . " " . substr($new_pep, $i / 3, 1) . " ";
     }
-    else if ($i * 3 > $newstart_pos - 1 && $i * 3 < $newstop_pos - 1) {
-      $cds = $cds . "<span class='codon'>" . substr($new_cds, $i * 3, 3) . "</span>" . " ";
-      /* $pep = $pep . " " . substr($new_pep, $i, 1) . "  "; */
+
+    // ----- cds span begin -----
+    if ($i >= $newstart_pos + 2 && $i < $newstop_pos - 1) {
+      if (($i - $newstart_pos + 1) % 3 == 0) {
+        $cds .= "<span class='codon" . ($j++ % 2) . "'>";
+        $pep = $pep . " " . substr($new_pep, $i / 3, 1) . " ";
+      }
     }
-    /* elsif ($i * 3 == $oldstart_pos - 1) { */
-      /* $cds = $cds . "<span class='mut'>" . substr($new_cds, $i * 3, 3) . "</span>" . " ";
-       * $pep = $pep . " <span class='mut'>" . substr($new_pep, $i, 1) . "</span>  "; */
-    /* } */
-    else {
-      $cds = $cds . substr($new_cds, $i * 3, 3) . " ";
-      /* $pep = $pep . " " . substr($new_pep, $i, 1) . "  "; */
+
+    // ----- newstop span begin -----
+    if ($newstop_pos != $oldstart_pos && $i >= $newstop_pos - 1 && $i <= $newstop_pos + 1) {
+      $cds .= "<span class='newstop'>";
     }
-    $pep = $pep . " " . substr($new_pep, $i, 1) . "  ";
+
+    // ----- oldstart span begin -----
+    if ($i >= $oldstart_pos - 1 && $i <= $oldstart_pos + 1) {
+      $cds .= "<span class='oldstart'>";
+    }
+
+    // cds seq
+    $cds .= substr($new_cds, $i, 1);
+
+    // ----- oldstart span end -----
+    if ($i >= $oldstart_pos - 1 && $i <= $oldstart_pos + 1) {
+      $cds .= "</span>";
+    }
+
+    // ----- newstop span end -----
+    if ($newstop_pos != $oldstart_pos && $i >= $newstop_pos - 1 && $i <= $newstop_pos + 1) {
+      $cds .= "</span>";
+    }
+
+    // ----- newstart or cds span end -----
+    if ($i > $newstart_pos - 1 && $i < $newstop_pos - 1 && ($i - $newstart_pos + 1) % 3 == 2) {
+      $cds .= "</span>";
+    }
+
+    // spaces before newstart
+    if ($i < $newstart_pos - 1) {
+      $pep = $pep . ' ';
+    }
+
     $i++;
-    $n += 3;
+    $n++;
     if ($n >= $nperline) {
-      /* echo "<span class='cds'>"; */
-      /* echo "$cds<br>$pep<br>"; */
-      echo "<div class='cds'>$cds</div>";
+      echo "<div class='nuc'>$cds</div>";
+      if ($pep == '') {
+        $pep = ' ';
+      }
       echo "<div class='pep'>$pep</div>";
       $cds = '';
       $pep = '';
@@ -215,15 +256,25 @@ if ($flag == 1) {
     }
   }
   if ($cds != '') {
-    /* echo "$cds<br>$pep<br>"; */
-    echo "<div class='cds'>$cds</div>";
-    echo "<div class='cds'>$pep</div>";
+    echo "<div class='nuc'>$cds</div>";
+    if ($pep == '') {
+      $pep = ' ';
+    }
+    echo "<div class='pep'>$pep</div>";
   }
-  echo "</span>";
+
+  echo "</td></td></table>";
+  echo "</td></tr>";
+  echo "</table><br>";
+  
+  echo "<table class='nsc_table'>";
+  echo "<tr><th>Kozak Sequence</th></tr>";
+  echo "<tr><td>";
+  echo $tb_kozak;
   echo "</td></tr>";
   echo "</table>";
-}
 
+}
 ?>
 
 <?php include('tail.inc'); ?>

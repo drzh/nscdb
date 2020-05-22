@@ -238,27 +238,50 @@
     padding: 0px 0px 0px 0px;
 }
 
-.cds {
+.nuc {
     font-family: Consolas,monaco,monospace;
     font-size: 1.2em;
     white-space: pre;
+    letter-spacing: 3px;
+    padding-top: 0px
 }
 
 .pep {
     font-family: Consolas,monaco,monospace;
     font-size: 1.2em;
     font-weight: bold;
-    /* color: green; */
+    color: blue;
+    /* background-color: #333333; */
     white-space: pre;
-    padding-bottom: 10px;
+    letter-spacing: 3px;
+    padding-bottom: 5px;
 }
 
 .mut {
     color: red;
 }
 
+.newstart {
+    background-color: forestgreen;
+}
+
+.newstop {
+    background-color: #888888;
+}
+
+.oldstart {
+    color: red;
+}
+
 .codon {
-    color: blue;
+    background-color: blue;
+}
+
+.codon0 {
+    background-color: orange;
+}
+.codon1 {
+    background-color: gold;
 }
 
 .tf_table td.alt {
