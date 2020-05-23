@@ -29,6 +29,13 @@
         <input type="checkbox" name="cb_stopa" value="1">After original start codon
       </td>
     </tr>
+    <tr>
+      <td>Novel start codon : </td>
+      <td>
+        <input type="checkbox" name="cb_incds" value="1">Overlapped with known CDS
+        <input type="checkbox" name="cb_nocds" value="1">Not overlapped with any known CDS
+      </td>
+    </tr>
   </table>
     
 </form>
