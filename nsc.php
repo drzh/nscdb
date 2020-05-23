@@ -40,8 +40,6 @@ else {
   $flag = 0;
 }
 
-$sqllimit = " limit 100;";
-
 $na = "N.A.";
 
 if ($flag == 1) {

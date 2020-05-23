@@ -87,7 +87,7 @@
     margin-bottom: 10px;
 }
 
-#input1[type=text] {
+#input1 {
   box-sizing: border-box;
   border: 2px solid #ccc;
   border-radius: 4px;
@@ -97,6 +97,8 @@
   background-position: 20px 20px;
   background-repeat: no-repeat;
   padding: 5px 10px 5px 10px;
+  display: block;
+  margin: auto;
   /* display: block; */
   /* margin: 0 auto; */
 }
@@ -110,6 +112,18 @@
 .center_block {
   display: block;
   margin: auto;
+}
+
+.submit1 {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  font-size: 18px;
+  padding: 5px 5px 5px 5px;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+  margin: 10px auto auto auto;
 }
 
 .linkout {
@@ -203,6 +217,14 @@
 .family_table tr.alt {
     color: #000000;
     background-color: #eaf2d3;
+}
+
+.ft_table {
+    font-family: verdana, arial, helvetica, sans-serif;
+    width: 800px;
+    border-collapse: collapse;
+    border: 1px solid;
+    margin: auto;
 }
 
 .nsc_table {
