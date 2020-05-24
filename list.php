@@ -3,8 +3,19 @@
 <div class="title_one">Search Result</div>
 
 <?php
+$ftstat = [];
 if (isset($_GET['kw'])) {
   $kw = $_GET['kw'];
+}
+if (isset($_GET['rd_frame'])) {
+  $ftstat['rd_frame'] = $_GET['rd_frame'];
+}
+if (isset($_GET['rd_stop'])) {
+  $cbstat['rd_stop'] = $_GET['rd_stop'];
+}
+
+if (isset($_GET['cb_nocds'])) {
+  $cbstat['cb_nocds'] = 1;
 }
 
 // Process key word
@@ -48,6 +59,10 @@ else if (preg_match('/^(N[MR]_\d{6})(\.\d+)*$/', $kw, $mat)) {
 }
 
 // generate sql
+/* $sqlf = "";
+ * if (array_key_exists('cb_if', $cbstat) and !) {
+ *   $sqlf .= " and  */
+
 $sqls = [];
 $col = 'nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol';
 if ($type == 'pos') {
