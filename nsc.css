@@ -1,5 +1,5 @@
 #main_body {
-    width: 980px;
+    width: 960px;
     font-family: verdana, arial, helvetica, sans-serif;
     margin: auto;
 }
@@ -97,10 +97,8 @@
   background-position: 20px 20px;
   background-repeat: no-repeat;
   padding: 5px 10px 5px 10px;
-  display: block;
-  margin: auto;
   /* display: block; */
-  /* margin: 0 auto; */
+  /* margin: auto; */
 }
 
 #listrow {
@@ -110,8 +108,7 @@
 #listrow:hover {background-color:#f5f5f5;}
 
 .center_block {
-  display: block;
-  margin: auto;
+  align: center;
 }
 
 .submit1 {
@@ -122,8 +119,8 @@
   padding: 5px 5px 5px 5px;
   text-decoration: none;
   cursor: pointer;
-  display: block;
-  margin: 10px auto auto auto;
+  /* display: block; */
+  /* margin: 10px auto auto auto; */
 }
 
 .linkout {
@@ -219,6 +216,21 @@
     background-color: #eaf2d3;
 }
 
+.search_table {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 0.8em;
+    width: 900px;
+    border-collapse: collapse;
+    /* border: 1px solid; */
+    display: block;
+    margin: auto;
+}
+
+.search_table td {
+    text-align: center;
+    align: center;
+}
+    
 .ft_table {
     font-family: verdana, arial, helvetica, sans-serif;
     font-size: 0.8em;
@@ -533,6 +545,21 @@ table.info_title td {
 
 .pub_list {
     padding-bottom: 5px;
+}
+
+.page {
+    padding-right: 10px;
+}
+
+table.page_panel {
+    width: 960px;
+    table-layout: fixed;
+    padding-top: 10px;
+    text-align: left;
+}
+table.page_panel td {
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 hr.dot {

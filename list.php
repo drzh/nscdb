@@ -8,14 +8,33 @@ if (isset($_GET['kw'])) {
   $kw = $_GET['kw'];
 }
 if (isset($_GET['rd_frame'])) {
-  $ftstat['rd_frame'] = $_GET['rd_frame'];
+  $ftstat['frame'] = $_GET['rd_frame'];
 }
 if (isset($_GET['rd_stop'])) {
-  $cbstat['rd_stop'] = $_GET['rd_stop'];
+  $ftstat['stop'] = $_GET['rd_stop'];
+}
+if (isset($_GET['rd_cds'])) {
+  $ftstat['cds'] = $_GET['rd_cds'];
+}
+if (isset($_GET['cb_1000g'])) {
+  $ftstat['1000g'] = $_GET['cb_1000g'];
+}
+if (isset($_GET['cb_exac'])) {
+  $ftstat['exac'] = $_GET['cb_exac'];
+}
+if (isset($_GET['cb_dbsnp'])) {
+  $ftstat['dbsnp'] = $_GET['cb_dbsnp'];
 }
 
-if (isset($_GET['cb_nocds'])) {
-  $cbstat['cb_nocds'] = 1;
+$para = [
+  'pg' => 1,
+  'n' => 50
+];
+if (isset($_GET['pg'])) {
+  $para['pg'] = $_GET['pg'];
+}
+if (isset($_GET['n'])) {
+  $para['n'] = $_GET['n'];
 }
 
 // Process key word
@@ -59,33 +78,90 @@ else if (preg_match('/^(N[MR]_\d{6})(\.\d+)*$/', $kw, $mat)) {
 }
 
 // generate sql
-/* $sqlf = "";
- * if (array_key_exists('cb_if', $cbstat) and !) {
- *   $sqlf .= " and  */
+$sqlf = "";
+if (array_key_exists('frame', $ftstat)) {
+  if ($ftstat['frame'] == '0') {
+    $sqlf .= " and nsc.frame = 0";
+  }
+  else if ($ftstat['frame'] == '1') {
+    $sqlf .= " and nsc.frame != 0";
+  }
+}
+if (array_key_exists('stop', $ftstat)) {
+  if ($ftstat['stop'] == 0) {
+    $sqlf .= " and nsc.nsc_end >= 0";
+  }
+  else if ($ftstat['stop'] == 1) {
+    $sqlf .= " and nsc.nsc_end < 0";
+  }
+}
+if (array_key_exists('cds', $ftstat)) {
+  if ($ftstat['cds'] == 0) {
+    $sqlf .= " and nsc.overlap_cds = 0";
+  }
+  else if ($ftstat['cds'] == 1) {
+    $sqlf .= " and nsc.overlap_cds = 1";
+  }
+}
+
+$sqlfdb = '';
+if (array_key_exists('1000g', $ftstat)) {
+  if ($ftstat['1000g'] == 'on') {
+    if ($sqlfdb == '') {
+      $sqlfdb = " and (nsc.1000g = 1";
+    }
+    else {
+      $sqlfdb .= " or nsc.1000g = 1";
+    }
+  }
+}
+if (array_key_exists('exac', $ftstat)) {
+  if ($ftstat['exac'] == 'on') {
+    if ($sqlfdb == '') {
+      $sqlfdb = " and (nsc.exac = 1";
+    }
+    else {
+      $sqlfdb .= " or nsc.exac = 1";
+    }
+  }
+}
+if (array_key_exists('dbsnp', $ftstat)) {
+  if ($ftstat['dbsnp'] == 'on') {
+    if ($sqlfdb == '') {
+      $sqlfdb = " and (nsc.dbsnp = 1";
+    }
+    else {
+      $sqlfdb .= " or nsc.dbsnp = 1";
+    }
+  }
+}
+if ($sqlfdb != '') {
+  $sqlfdb .= ')';
+}
+$sqlf .= $sqlfdb;
 
 $sqls = [];
-$col = 'nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol';
+$col = "nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol";
 if ($type == 'pos') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos" . $sqllimit;
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos" . $sqlf . $sqllimit;
   $sqls[] = $sql;
 }
 else if ($type == 'region') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2" . $sqllimit;
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2" . $sqlf . $sqllimit;
   $sqls[] = $sql;
 }
 else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type == 'refseq_id') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m'" . $sqllimit;
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m'" . $sqlf . $sqllimit;
   $sqls[] = $sql;
 }
 else {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$kw' or gene.symbol = '$kw')" . $sqllimit;
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$kw' or gene.symbol = '$kw')" . $sqlf . $sqllimit;
   $sqls[] = $sql;
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against ('$kw' in natural language mode)" . $sqllimit;
+  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against ('$kw' in natural language mode)" . $sqlf . $sqllimit;
   $sqls[] = $sql;
 }
 
 // query 
-/* echo $sql, '<br>'; */
 $rows = [];
 $stat = [];
 foreach ($sqls as $sql) {
@@ -98,35 +174,62 @@ foreach ($sqls as $sql) {
 }
 
 $rows = array_unique($rows, SORT_REGULAR);
-
-// output
-echo count($rows), " results<br>";
-
-if (count($rows) > 0) {
-  echo "<table class='nsc_table'>";
-  echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Position<br>of new stop codon</th><th>Symbol</th></tr></thead>";
-  echo "<tbody>";
-  foreach ($rows as $row) {
-  /* while($row = $res -> fetch_assoc()) { */
-    #echo $row['chr'], ' ', $row['pos'], ' ', $row['ref'], ' ', $row['alt'], ' ',  $row['str'], ' ', $row['tid'], '<br>';
-    echo "<tr id='listrow' onclick=", '"', "document.location = 'nsc.php?chr=", $row['chr'], "&pos=", $row['pos'], "&ref=", $row['ref'], "&alt=", $row['alt'], "&tid=", $row['tid'], "';", '">';
-    echo "<td>", $row['chr'], "</td>";
-    echo "<td>", $row['pos'], "</td>";
-    echo "<td>", $row['ref'], "</td>";
-    echo "<td>", $row['alt'], "</td>";
-    echo "<td>", $row['tid'], "</td>";
-    echo "<td>", $row['t_pos'], "</td>";
-    echo "<td>", $row['frame'], "</td>";
-    echo "<td>", $row['nsc_end'], "</td>";
-    /* echo "<td>", $row['gname'], "</td>"; */
-    echo "<td>", $row['symbol'], "</td>";
-    echo "</tr>";
+$nrow = count($rows);
+if ($nrow > 0) {
+  // split pages
+  $pgall = ceil($nrow / $para['n']);
+  if ($para['pg'] <= $pgall) {
+    $i = ($para['pg'] - 1) * $para['n'];
+    $n = ($nrow - $i < $para['n']) ? ($nrow - $i) : $para['n'];
+    echo $i + 1, " - ", $i + $n, " of $nrow results<br>";
+    $rows = array_slice($rows, $i, $n);
+    
+    // output
+    echo "<table class='nsc_table'>";
+    echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Position<br>of new stop codon</th><th>Symbol</th></tr></thead>";
+    echo "<tbody>";
+    foreach ($rows as $row) {
+      echo "<tr id='listrow' onclick=", '"', "document.location = 'nsc.php?chr=", $row['chr'], "&pos=", $row['pos'], "&ref=", $row['ref'], "&alt=", $row['alt'], "&tid=", $row['tid'], "';", '">';
+      echo "<td>", $row['chr'], "</td>";
+      echo "<td>", $row['pos'], "</td>";
+      echo "<td>", $row['ref'], "</td>";
+      echo "<td>", $row['alt'], "</td>";
+      echo "<td>", $row['tid'], "</td>";
+      echo "<td>", $row['t_pos'], "</td>";
+      echo "<td>", $row['frame'], "</td>";
+      echo "<td>", $row['nsc_end'], "</td>";
+      /* echo "<td>", $row['gname'], "</td>"; */
+      echo "<td>", $row['symbol'], "</td>";
+      echo "</tr>";
+    }
+    echo "</tbody>";
+    echo "</table>";
   }
-  echo "</tbody>";
-  echo "</table>";
+  // print pages
+  echo "<table class='page_panel'><tr><td>Pages: ";
+  $i = 1;
+  while ($i <= $pgall) {
+    echo "<span class='page'>";
+    if ($i != $para['pg']) {
+      echo "<a href='list.php?";
+      foreach ($_GET as $k => $v) {
+        if ($k != 'pg') {
+          echo "$k=$v&";
+        }
+      }
+      echo "pg=$i'>";
+    }
+    echo $i;
+    if ($i != $para['pg']) {
+      echo "</a>";
+    }
+    $i++;
+    echo "</span>";
+  }
+  echo "</td></tr></table>";
 }
 else {
-  echo "0 results";
+  echo "No results<br>";
 }
 
 ?>

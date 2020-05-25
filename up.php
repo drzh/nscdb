@@ -9,14 +9,10 @@
 <hr>
 
 <div class="title_one">Search</div>
-<form action="list.php" method="get">
+<form action="down.php" method="get">
   <div align="center">
-    <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol, HGVS or search terms" >
-    <input class="submit1" type="submit" value="Submit"><br>
-    <div style="padding-top: 6px;">
-      e.g., <a onclick="javascript: document.getElementById('input1').value='9:100000-2000000'">9:100000-2000000</a>,
-      <a onclick="javascript: document.getElementById('input1').value='CETP'">CETP</a>,
-    </div>
+    <label for="myfile">Select a file:</label>
+    <input type="file" id="myfile" name="myfile">
   </div>
   <div class="title_one">Filters</div>
   <table class="ft_table">
