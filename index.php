@@ -9,7 +9,7 @@
 <hr>
 
 <div class="title_one">Search</div>
-<form action="list.php" method="get">
+<form action="/list.php" method="get">
   <div align="center">
     <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol, HGVS or search terms" >
     <input class="submit1" type="submit" value="Submit"><br>

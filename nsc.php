@@ -72,6 +72,11 @@ if ($flag == 1) {
     $tb_hg19_chr = array_key_exists('hg19_chr', $row) ? $row['hg19_chr'] : $na;
     $tb_hg19_pos = array_key_exists('hg19_pos', $row) ? $row['hg19_pos'] : $na;
   }
+  $sql = "select * from dbsnp where chr = '$chr' and pos = $pos and ref = '$ref' and alt = '$alt';";
+  if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+    $row = $res -> fetch_assoc();
+    $tb_rsid = array_key_exists('rsid', $row) ? $row['rsid'] : $na;
+  }
   $sql = "select * from gene where tid = '$tid';";
   if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
     $row = $res -> fetch_assoc();
@@ -106,6 +111,7 @@ if ($flag == 1) {
   }
   echo "<table class='nsc_table'>";
   echo "<tr><th>Position in Genome</th><td><table class='inner_table'><tr><td><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr$tb_chr:$tb_pos' target='_blank'>chr$tb_chr:$tb_pos</a>&nbsp;(GRCh38)</td><td align='right'><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr$tb_hg19_chr:$tb_hg19_pos' target='_blank'>chr$tb_hg19_chr:$tb_hg19_pos</a>&nbsp;(GRCh37)</td></tr></table></td></tr>";
+  echo "<tr><th>dbSNP RefSNP ID</th><td><a href='https://www.ncbi.nlm.nih.gov/snp/$tb_rsid' target='_blank'>$tb_rsid</a></td></tr>";
   echo "<tr><th>Strand</th><td>$tb_str</td></tr>";
   echo "<tr><th>Alleles</th><td>$tb_ref>$tb_alt&nbsp;(Genome);&nbsp;&nbsp;&nbsp;&nbsp;$tb_t_ref>$tb_t_alt&nbsp;(Transcript)</td></tr>";
   echo "<tr><th>Position in Transcript</th><td>$tb_t_pos</td></tr>";
