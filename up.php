@@ -16,9 +16,10 @@
     <label for="myfile">Select a file:</label>
     <input type="file" id="upfile" name="upfile">
     <input class="submit1" type="submit" name="submit1" value="Upload" onclick="show_loader(); this.disabled=true;">
-    <div style="padding:100px,100px,100px,100px;">Or</div>
-    <label for="myfid">Input the result ID:</label>
+    <div style="padding: 10px 0px 10px 0px;">Or</div>
+    <label for="myfid">Retrieve the result by ID:</label>
     <input type="text" id="fid" name="fid" size="50">
+    <input class="submit1" type="submit" name="submit2" value="Submit" onclick="show_loader(); this.disabled=true;">
   </div>
 </form>
 

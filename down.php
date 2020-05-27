@@ -3,17 +3,23 @@
 <div class="title_one">Result</div>
 
 <?php
-$target_dir = "upload/";
-$dt = date("ymdHis");
-$rand = mt_rand(100000000, 999999999);
-/* $fname = $dt . "." . $rand . ".in";
- * $fout = $dt . "." . $rand . ".tsv";
- * $target_file = $target_dir . $fname;
- * $target_output = $target_dir . $fout; */
-$flag = 0;
 
-// check if file was uploaded succesfully and moved to the target directory
-if (isset($_FILES['upfile']['tmp_name']) && strlen($_FILES['upfile']['tmp_name']) > 1) {
+/* print_r($_POST);
+ * echo "<br>";
+ * print_r($_FILES);
+ * echo "<br>"; */
+
+$flag = 0;
+$target_dir = "upload/";
+if (isset($_POST['fid']) && strlen($_POST['fid']) == 44) {
+  $fid = $_POST['fid'];
+  $target_output = $target_dir . $fid . ".tsv";
+  $flag = 2;
+}
+else if (isset($_FILES['upfile']['tmp_name']) && strlen($_FILES['upfile']['tmp_name']) > 1) {
+  // check if file was uploaded succesfully and moved to the target directory
+  $dt = date("ymdHis");
+  $rand = mt_rand(100000000, 999999999);
   $md5 = md5_file($_FILES['upfile']['tmp_name']);
   $pattern = $target_dir . "*$md5.tsv";
   $fouts = glob($pattern);
