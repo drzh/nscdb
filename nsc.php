@@ -1,6 +1,6 @@
 <?php include('head.inc'); ?>
 
-<div class="title_one">Detailed Information</div>
+<div class="title_one">Novel Start Codon Information</div>
 
 <?php
 $flag = 1;
