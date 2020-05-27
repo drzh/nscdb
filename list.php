@@ -3,7 +3,9 @@
 <div class="title_one">Search Result</div>
 
 <?php
+$kw = '';
 $ftstat = [];
+$fid = '';
 if (isset($_GET['kw'])) {
   $kw = $_GET['kw'];
 }
@@ -25,6 +27,9 @@ if (isset($_GET['cb_exac'])) {
 if (isset($_GET['cb_dbsnp'])) {
   $ftstat['dbsnp'] = $_GET['cb_dbsnp'];
 }
+if (isset($_GET['fid'])) {
+  $fid = $_GET['fid'];
+}
 
 $para = [
   'pg' => 1,
@@ -37,143 +42,186 @@ if (isset($_GET['n'])) {
   $para['n'] = $_GET['n'];
 }
 
-// Process key word
-$type = 'text';
-$flag_id_m = 0;
-if (preg_match('/(\S+):(\S+)/', $kw, $mat)) {
-  // Position or region
-  $chr = $mat[1];
-  $pos = $mat[2];
-  if (preg_match('/chr(\S+)/', $chr, $matchr)) {
-    $chr = $matchr[1];
-  }
-  if (preg_match('/(\d+)-(\d+)/', $pos, $matpos)) {
-    $type = 'region';
-    $pos1 = $matpos[1];
-    $pos2 = $matpos[2];
-  }
-  else if (preg_match('/^(\d+)$/', $pos)) {
-    $type = 'pos';
-  }
-}
-else if (preg_match('/^(ENST\d+)(\.\d+)*$/', $kw, $mat)) {
-  // tid or tid_m;
-  $type = 'tid_m';
-  $id_m = $mat[1];
-}
-else if (preg_match('/^(ENSG\d+)(\.\d+)*$/', $kw, $mat)) {
-  // gid or gid_m;
-  $type = 'gid_m';
-  $id_m = $mat[1];
-}
-else if (preg_match('/^(uc\d{3}[a-z]{3})(\.\d+)*$/', $kw, $mat)) {
-  // ucsc_id or ucsc_id_m;
-  $type = 'ucsc_id_m';
-  $id_m = $mat[1];
-}
-else if (preg_match('/^(N[MR]_\d{6})(\.\d+)*$/', $kw, $mat)) {
-  // refid;
-  $type = 'refseq_id';
-  $id_m = $mat[1];
-}
-
-// generate sql
-$sqlf = "";
-if (array_key_exists('frame', $ftstat)) {
-  if ($ftstat['frame'] == '0') {
-    $sqlf .= " and nsc.frame = 0";
-  }
-  else if ($ftstat['frame'] == '1') {
-    $sqlf .= " and nsc.frame != 0";
-  }
-}
-if (array_key_exists('stop', $ftstat)) {
-  if ($ftstat['stop'] == 0) {
-    $sqlf .= " and nsc.nsc_end >= 0";
-  }
-  else if ($ftstat['stop'] == 1) {
-    $sqlf .= " and nsc.nsc_end < 0";
-  }
-}
-if (array_key_exists('cds', $ftstat)) {
-  if ($ftstat['cds'] == 0) {
-    $sqlf .= " and nsc.overlap_cds = 0";
-  }
-  else if ($ftstat['cds'] == 1) {
-    $sqlf .= " and nsc.overlap_cds = 1";
-  }
-}
-
-$sqlfdb = '';
-if (array_key_exists('1000g', $ftstat)) {
-  if ($ftstat['1000g'] == 'on') {
-    if ($sqlfdb == '') {
-      $sqlfdb = " and (nsc.1000g = 1";
-    }
-    else {
-      $sqlfdb .= " or nsc.1000g = 1";
-    }
-  }
-}
-if (array_key_exists('exac', $ftstat)) {
-  if ($ftstat['exac'] == 'on') {
-    if ($sqlfdb == '') {
-      $sqlfdb = " and (nsc.exac = 1";
-    }
-    else {
-      $sqlfdb .= " or nsc.exac = 1";
-    }
-  }
-}
-if (array_key_exists('dbsnp', $ftstat)) {
-  if ($ftstat['dbsnp'] == 'on') {
-    if ($sqlfdb == '') {
-      $sqlfdb = " and (nsc.dbsnp = 1";
-    }
-    else {
-      $sqlfdb .= " or nsc.dbsnp = 1";
-    }
-  }
-}
-if ($sqlfdb != '') {
-  $sqlfdb .= ')';
-}
-$sqlf .= $sqlfdb;
-
-$sqls = [];
-$col = "nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol";
-if ($type == 'pos') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos" . $sqlf . $sqllimit;
-  $sqls[] = $sql;
-}
-else if ($type == 'region') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2" . $sqlf . $sqllimit;
-  $sqls[] = $sql;
-}
-else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type == 'refseq_id') {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m'" . $sqlf . $sqllimit;
-  $sqls[] = $sql;
-}
-else {
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$kw' or gene.symbol = '$kw')" . $sqlf . $sqllimit;
-  $sqls[] = $sql;
-  $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against ('$kw' in natural language mode)" . $sqlf . $sqllimit;
-  $sqls[] = $sql;
-}
-
-// query 
 $rows = [];
-$stat = [];
-foreach ($sqls as $sql) {
-  /* echo $sql, "<br>"; */
-  if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
-    while ($row = $res -> fetch_assoc()) {
-      $rows[] = $row;
+
+// Process key word or fid
+if ($kw != '') {
+  $type = 'text';
+  $flag_id_m = 0;
+  if (preg_match('/(\S+):(\S+)/', $kw, $mat)) {
+    // Position or region
+    $chr = $mat[1];
+    $pos = $mat[2];
+    if (preg_match('/chr(\S+)/', $chr, $matchr)) {
+      $chr = $matchr[1];
+    }
+    if (preg_match('/(\d+)-(\d+)/', $pos, $matpos)) {
+      $type = 'region';
+      $pos1 = $matpos[1];
+      $pos2 = $matpos[2];
+    }
+    else if (preg_match('/^(\d+)$/', $pos)) {
+      $type = 'pos';
     }
   }
+  else if (preg_match('/^(ENST\d+)(\.\d+)*$/', $kw, $mat)) {
+    // tid or tid_m;
+    $type = 'tid_m';
+    $id_m = $mat[1];
+  }
+  else if (preg_match('/^(ENSG\d+)(\.\d+)*$/', $kw, $mat)) {
+    // gid or gid_m;
+    $type = 'gid_m';
+    $id_m = $mat[1];
+  }
+  else if (preg_match('/^(uc\d{3}[a-z]{3})(\.\d+)*$/', $kw, $mat)) {
+    // ucsc_id or ucsc_id_m;
+    $type = 'ucsc_id_m';
+    $id_m = $mat[1];
+  }
+  else if (preg_match('/^(N[MR]_\d{6})(\.\d+)*$/', $kw, $mat)) {
+    // refid;
+    $type = 'refseq_id';
+    $id_m = $mat[1];
+  }
+
+  // generate sql
+  $sqlf = "";
+  if (array_key_exists('frame', $ftstat)) {
+    if ($ftstat['frame'] == '0') {
+      $sqlf .= " and nsc.frame = 0";
+    }
+    else if ($ftstat['frame'] == '1') {
+      $sqlf .= " and nsc.frame != 0";
+    }
+  }
+  if (array_key_exists('stop', $ftstat)) {
+    if ($ftstat['stop'] == 0) {
+      $sqlf .= " and nsc.nsc_end >= 0";
+    }
+    else if ($ftstat['stop'] == 1) {
+      $sqlf .= " and nsc.nsc_end < 0";
+    }
+  }
+  if (array_key_exists('cds', $ftstat)) {
+    if ($ftstat['cds'] == 0) {
+      $sqlf .= " and nsc.overlap_cds = 0";
+    }
+    else if ($ftstat['cds'] == 1) {
+      $sqlf .= " and nsc.overlap_cds = 1";
+    }
+  }
+
+  $sqlfdb = '';
+  if (array_key_exists('1000g', $ftstat)) {
+    if ($ftstat['1000g'] == 'on') {
+      if ($sqlfdb == '') {
+        $sqlfdb = " and (nsc.1000g = 1";
+      }
+      else {
+        $sqlfdb .= " or nsc.1000g = 1";
+      }
+    }
+  }
+  if (array_key_exists('exac', $ftstat)) {
+    if ($ftstat['exac'] == 'on') {
+      if ($sqlfdb == '') {
+        $sqlfdb = " and (nsc.exac = 1";
+      }
+      else {
+        $sqlfdb .= " or nsc.exac = 1";
+      }
+    }
+  }
+  if (array_key_exists('dbsnp', $ftstat)) {
+    if ($ftstat['dbsnp'] == 'on') {
+      if ($sqlfdb == '') {
+        $sqlfdb = " and (nsc.dbsnp = 1";
+      }
+      else {
+        $sqlfdb .= " or nsc.dbsnp = 1";
+      }
+    }
+  }
+  if ($sqlfdb != '') {
+    $sqlfdb .= ')';
+  }
+  $sqlf .= $sqlfdb;
+
+  $sqls = [];
+  $col = "nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol";
+  if ($type == 'pos') {
+    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos" . $sqlf . $sqllimit;
+    $sqls[] = $sql;
+  }
+  else if ($type == 'region') {
+    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2" . $sqlf . $sqllimit;
+    $sqls[] = $sql;
+  }
+  else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type == 'refseq_id') {
+    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m'" . $sqlf . $sqllimit;
+    $sqls[] = $sql;
+  }
+  else {
+    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$kw' or gene.symbol = '$kw')" . $sqlf . $sqllimit;
+    $sqls[] = $sql;
+    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against ('$kw' in natural language mode)" . $sqlf . $sqllimit;
+    $sqls[] = $sql;
+  }
+
+  // query 
+  $rows = [];
+  $stat = [];
+  foreach ($sqls as $sql) {
+    /* echo $sql, "<br>"; */
+    if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+      while ($row = $res -> fetch_assoc()) {
+        $rows[] = $row;
+      }
+    }
+  }
+  $rows = array_unique($rows, SORT_REGULAR);
+}
+else if ($fid != '') {
+  $target_dir = "upload/";
+  $target_output = $target_dir . $fid . ".tsv";
+  if ($fh = fopen($target_output, "r")) {
+    while(! feof($fh)) {
+      $line = rtrim(fgets($fh));
+      if (! preg_match('/^#/', $line)) {
+        if ($line != '') {
+          $e = explode("\t", $line);
+          $row = [
+            'chr' => $e[0],
+              'pos' => $e[1],
+              'ref' => $e[2],
+              'alt' => $e[3],
+              'str' => $e[4],
+              'tid' => $e[5],
+              't_pos' => $e[6],
+              't_ref' => $e[7],
+              't_alt' => $e[8],
+              'frame' => $e[9],
+              'end_before' => $e[10],
+              'nsc_start' => $e[11],
+              'nsc_end' => $e[12],
+              'new_cds' => $e[13],
+              'new_pep' => $e[14],
+              'kozak' => $e[15],
+              'symbol' => '.'
+          ];
+          $sql = "select * from gene where tid = '" . $row['tid'] . "';";
+          if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+            $e = $res -> fetch_assoc();
+            $row['symbol'] = $e['symbol'];
+          }
+          $rows[] = $row;
+        }
+      }
+    }
+  } 
 }
 
-$rows = array_unique($rows, SORT_REGULAR);
 $nrow = count($rows);
 if ($nrow > 0) {
   // split pages
@@ -229,7 +277,7 @@ if ($nrow > 0) {
   echo "</td></tr></table>";
 }
 else {
-  echo "No results<br>";
+  echo "<div align='center'>No novel start codons were found.</div><br>";
 }
 
 ?>

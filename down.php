@@ -9,6 +9,8 @@
  * print_r($_FILES);
  * echo "<br>"; */
 
+$na = 'N.A.';
+
 $flag = 0;
 $target_dir = "upload/";
 if (isset($_POST['fid']) && strlen($_POST['fid']) == 44) {
@@ -25,7 +27,7 @@ else if (isset($_FILES['upfile']['tmp_name']) && strlen($_FILES['upfile']['tmp_n
   $fouts = glob($pattern);
   if ($fouts) {
     $target_output = $fouts[0];
-    $fid = 'N.A.';
+    $fid = $na;
     if (preg_match('/(\d{12}\S{32}).tsv/', $target_output, $mat)) {
       $fid = $mat[1];
     }
@@ -35,19 +37,21 @@ else if (isset($_FILES['upfile']['tmp_name']) && strlen($_FILES['upfile']['tmp_n
     $fid = $dt . $md5;
     $target_file = $target_dir . $fid . ".in";
     $target_output = $target_dir . $fid . ".tsv";
-    if (move_uploaded_file($_FILES['upfile']['tmp_name'], $target_file)) {
-      $flag = 1;
-    }
+    $flag = 1;
+    /* if (move_uploaded_file($_FILES['upfile']['tmp_name'], $target_file)) {
+     *   $flag = 1;
+     * } */
   }
 }
 
 // 
 if ($flag != 0) {
   if ($flag == 1) {
-    $cmd = "data/extract_nsc.sh data/nsc.all.gz $target_file >$target_output 2>$target_output.err ";
+    $cmd = "data/extract_nsc.sh data/nsc.all.gz " . $_FILES['upfile']['tmp_name'] . " >$target_output 2>$target_output.err ";
     exec($cmd);
   }
   if (file_exists($target_output)) {
+    echo "<div align='center' style='font-size:1.5em;padding-bottom:10px;'><a href='/list.php?fid=$fid'>Browse the result</a></div>";
     echo "<div align='center' style='font-size:1.5em;padding-bottom:10px;'><a href='$target_output'>Download the result</a></div>";
     echo "<div align='center'>Result ID (result can be retrieved in future using this ID):&nbsp;&nbsp;<span style='color:red;'>$fid</span></a></div>";
   }
