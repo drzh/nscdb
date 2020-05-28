@@ -1,11 +1,10 @@
-<?php include('head.inc'); ?>
-
-<div class="title_one">Search Result</div>
-
 <?php
+include "dbconn.inc";
+
 $kw = '';
 $ftstat = [];
 $fid = '';
+$ex = 0;
 if (isset($_GET['kw'])) {
   $kw = $_GET['kw'];
 }
@@ -30,6 +29,9 @@ if (isset($_GET['cb_dbsnp'])) {
 if (isset($_GET['fid'])) {
   $fid = $_GET['fid'];
 }
+if (isset($_GET['ex'])) {
+  $ex = $_GET['ex'];
+}
 
 $para = [
   'pg' => 1,
@@ -44,7 +46,7 @@ if (isset($_GET['n'])) {
 
 $rows = [];
 
-// Process key word or fid
+// Process key word
 if ($kw != '') {
   $type = 'text';
   $flag_id_m = 0;
@@ -84,7 +86,53 @@ if ($kw != '') {
     $type = 'refseq_id';
     $id_m = $mat[1];
   }
+  else if (preg_match('/(\d{12}\S{32})/', $kw, $mat)) {
+    // fid;
+    $type = 'fid';
+    $fid = $mat[1];
+  }
+}
 
+if ($fid != '') {
+  $target_dir = "upload/";
+  $target_output = $target_dir . $fid . ".tsv";
+  if ($fh = fopen($target_output, "r")) {
+    while(! feof($fh)) {
+      $line = rtrim(fgets($fh));
+      if (! preg_match('/^#/', $line)) {
+        if ($line != '') {
+          $e = explode("\t", $line);
+          $row = [
+            'chr' => $e[0],
+              'pos' => $e[1],
+              'ref' => $e[2],
+              'alt' => $e[3],
+              'str' => $e[4],
+              'tid' => $e[5],
+              't_pos' => $e[6],
+              't_ref' => $e[7],
+              't_alt' => $e[8],
+              'frame' => $e[9],
+              'end_before' => $e[10],
+              'nsc_start' => $e[11],
+              'nsc_end' => $e[12],
+              'new_cds' => $e[13],
+              'new_pep' => $e[14],
+              'kozak' => $e[15],
+              'symbol' => '.'
+          ];
+          $sql = "select * from gene where tid = '" . $row['tid'] . "';";
+          if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+            $e = $res -> fetch_assoc();
+            $row['symbol'] = $e['symbol'];
+          }
+          $rows[] = $row;
+        }
+      }
+    }
+  } 
+}
+else {
   // generate sql
   $sqlf = "";
   if (array_key_exists('frame', $ftstat)) {
@@ -182,104 +230,90 @@ if ($kw != '') {
   }
   $rows = array_unique($rows, SORT_REGULAR);
 }
-else if ($fid != '') {
-  $target_dir = "upload/";
-  $target_output = $target_dir . $fid . ".tsv";
-  if ($fh = fopen($target_output, "r")) {
-    while(! feof($fh)) {
-      $line = rtrim(fgets($fh));
-      if (! preg_match('/^#/', $line)) {
-        if ($line != '') {
-          $e = explode("\t", $line);
-          $row = [
-            'chr' => $e[0],
-              'pos' => $e[1],
-              'ref' => $e[2],
-              'alt' => $e[3],
-              'str' => $e[4],
-              'tid' => $e[5],
-              't_pos' => $e[6],
-              't_ref' => $e[7],
-              't_alt' => $e[8],
-              'frame' => $e[9],
-              'end_before' => $e[10],
-              'nsc_start' => $e[11],
-              'nsc_end' => $e[12],
-              'new_cds' => $e[13],
-              'new_pep' => $e[14],
-              'kozak' => $e[15],
-              'symbol' => '.'
-          ];
-          $sql = "select * from gene where tid = '" . $row['tid'] . "';";
-          if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
-            $e = $res -> fetch_assoc();
-            $row['symbol'] = $e['symbol'];
-          }
-          $rows[] = $row;
-        }
-      }
-    }
-  } 
-}
 
 $nrow = count($rows);
-if ($nrow > 0) {
-  // split pages
-  $pgall = ceil($nrow / $para['n']);
-  if ($para['pg'] <= $pgall) {
-    $i = ($para['pg'] - 1) * $para['n'];
-    $n = ($nrow - $i < $para['n']) ? ($nrow - $i) : $para['n'];
-    echo $i + 1, " - ", $i + $n, " of $nrow results<br>";
-    $rows = array_slice($rows, $i, $n);
-    
-    // output
-    echo "<table class='nsc_table'>";
-    echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Position<br>of new stop codon</th><th>Symbol</th></tr></thead>";
-    echo "<tbody>";
-    foreach ($rows as $row) {
-      echo "<tr id='listrow' onclick=", '"', "document.location = 'nsc.php?chr=", $row['chr'], "&pos=", $row['pos'], "&ref=", $row['ref'], "&alt=", $row['alt'], "&tid=", $row['tid'], "';", '">';
-      echo "<td>", $row['chr'], "</td>";
-      echo "<td>", $row['pos'], "</td>";
-      echo "<td>", $row['ref'], "</td>";
-      echo "<td>", $row['alt'], "</td>";
-      echo "<td>", $row['tid'], "</td>";
-      echo "<td>", $row['t_pos'], "</td>";
-      echo "<td>", $row['frame'], "</td>";
-      echo "<td>", $row['nsc_end'], "</td>";
-      /* echo "<td>", $row['gname'], "</td>"; */
-      echo "<td>", $row['symbol'], "</td>";
-      echo "</tr>";
-    }
-    echo "</tbody>";
-    echo "</table>";
+
+if ($ex == 1) {
+  // download recrods
+  header("Content-type: text/plain");
+  header("Content-Disposition: attachment; filename=nsc.tsv");
+  echo implode("\t", ['chr', 'pos', 'ref', 'alt', 'strand', 'transcript_id', 'pos_in_transcript', 'frame', 'newstop_in_transcript', 'symbol']), "\n";
+  foreach ($rows as $row) {
+    echo implode("\t", [$row['chr'], $row['pos'], $row['ref'], $row['alt'], $row['str'], $row['tid'], $row['t_pos'], $row['frame'], $row['nsc_end'], $row['symbol']]), "\n";
   }
-  // print pages
-  echo "<table class='page_panel'><tr><td>Pages: ";
-  $i = 1;
-  while ($i <= $pgall) {
-    echo "<span class='page'>";
-    if ($i != $para['pg']) {
-      echo "<a href='list.php?";
-      foreach ($_GET as $k => $v) {
-        if ($k != 'pg') {
-          echo "$k=$v&";
-        }
-      }
-      echo "pg=$i'>";
-    }
-    echo $i;
-    if ($i != $para['pg']) {
-      echo "</a>";
-    }
-    $i++;
-    echo "</span>";
-  }
-  echo "</td></tr></table>";
 }
 else {
-  echo "<div align='center'>No novel start codons were found.</div><br>";
+  // output records
+  include('head.inc');
+  echo "<div class='title1'>Search Result</div>";
+  if ($nrow > 0) {
+    // split pages
+    $pgall = ceil($nrow / $para['n']);
+    if ($para['pg'] <= $pgall) {
+      $i = ($para['pg'] - 1) * $para['n'];
+      $n = ($nrow - $i < $para['n']) ? ($nrow - $i) : $para['n'];
+      $rows = array_slice($rows, $i, $n);
+      
+      // show # of results
+      echo "<span>", $i + 1, " - ", $i + $n, " of $nrow records</span>";
+
+      // link of export
+      $expara = '';
+      foreach ($_GET as $k => $v) {
+        $expara .= "&$k=$v";
+      }
+      echo "<span style='float: right; padding-bottom: 5px; font-weight: bold;'><a href='list.php?ex=1$expara'>Export records</a></span>";
+
+      // output records
+      echo "<table class='list_table'>";
+      echo "<thead><tr><th>Chr</th><th>Position</th><th>Ref</th><th>Alt</th><th>Transcript_ID</th><th>Position<br>in transcript</th><th>Frame</th><th>Position<br>of new stop codon</th><th>Symbol</th></tr></thead>";
+      echo "<tbody>";
+      $j = 0;
+      foreach ($rows as $row) {
+        echo "<tr ", ($j++ % 2 == 1) ? "class='even'" : "", " onclick=", '"', "document.location = 'nsc.php?", ($fid == '') ? "" : "all=1&", "chr=", $row['chr'], "&pos=", $row['pos'], "&ref=", $row['ref'], "&alt=", $row['alt'], "&tid=", $row['tid'], "';", '">';
+        echo "<td>", $row['chr'], "</td>";
+        echo "<td>", $row['pos'], "</td>";
+        echo "<td>", $row['ref'], "</td>";
+        echo "<td>", $row['alt'], "</td>";
+        echo "<td>", $row['tid'], "</td>";
+        echo "<td>", $row['t_pos'], "</td>";
+        echo "<td>", $row['frame'], "</td>";
+        echo "<td>", $row['nsc_end'], "</td>";
+        /* echo "<td>", $row['gname'], "</td>"; */
+        echo "<td>", $row['symbol'], "</td>";
+        echo "</tr>";
+      }
+      echo "</tbody>";
+      echo "</table>";
+      // print pages
+      echo "<table class='page_panel'><tr><td>Pages: ";
+      $i = 1;
+      while ($i <= $pgall) {
+        /* echo "<span class='page'>"; */
+        if ($i != $para['pg']) {
+          echo "<a href='list.php?";
+          foreach ($_GET as $k => $v) {
+            if ($k != 'pg') {
+              echo "$k=$v&";
+            }
+          }
+          echo "pg=$i'>";
+        }
+        echo " $i ";
+        if ($i != $para['pg']) {
+          echo "</a>";
+        }
+        $i++;
+        /* echo "</span>"; */
+      }
+      echo "</td></tr></table>";
+    }
+  }
+  else {
+    echo "<div align='center'>No novel start codons were found.</div><br>";
+  }
+
+  include('tail.inc');
 }
 
 ?>
-
-<?php include('tail.inc'); ?>

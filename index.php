@@ -1,14 +1,15 @@
 <?php include('head.inc'); ?>
 
-<br>
-<font color="red">Welcome to Novel Start Codons Database:</font>
-<ul style="margin-block-start: 0.5em">
-  <li>NSCDB provides information on SNPs that introduced potential novel start codons in the human genomes</li>
-  <li>You can search and browse the candidate novel start codons</li>
-</ul>
+<div class="info">
+  <font color="red">Welcome to Novel Start Codons Database:</font>
+  <ul style="margin-block-start: 0.5em">
+    <li>NSCDB provides information on SNPs that introduced potential novel start codons in the human genomes</li>
+    <li>You can search and browse the candidate novel start codons</li>
+  </ul>
+</div>
 <hr>
 
-<div class="title_one">Search</div>
+<div class="title1">Search</div>
 <form action="/list.php" method="get">
   <div align="center">
     <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol, HGVS or search terms" >
@@ -18,7 +19,7 @@
       <a onclick="javascript: document.getElementById('input1').value='CETP'">CETP</a>,
     </div>
   </div>
-  <div class="title_one">Filters</div>
+  <div class="title1">Filters</div>
   <table class="ft_table">
     <tr>
       <th>Frame of novel CDS : </th>

@@ -8,7 +8,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>NSCDB - Novel Start Codon Databases @ QBRC, UTSW</title>
 </head>
-<body id='body_one'>
+<body id='body1'>
   <style>
   <?php include('nsc.css'); ?>
   </style>

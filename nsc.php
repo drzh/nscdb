@@ -1,6 +1,6 @@
 <?php include('head.inc'); ?>
 
-<div class="title_one">Novel Start Codon Information</div>
+<div class="title1">Novel Start Codon Information</div>
 
 <?php
 $flag = 1;
@@ -45,6 +45,34 @@ $na = "N.A.";
 if ($flag == 1) {
   // generate sql
   $sql = "select * from nsc where chr = '$chr' and pos = $pos and ref = '$ref' and alt = '$alt' and tid = '$tid';";
+  $tb_chr = $na;
+  $tb_pos = $na;
+  $tb_ref = $na;
+  $tb_alt = $na;
+  $tb_str = $na;
+  $tb_tid = $na;
+  $tb_t_pos = $na;
+  $tb_t_ref = $na;
+  $tb_t_alt = $na;
+  $tb_frame = $na;
+  $tb_end_before = $na;
+  $tb_nsc_start = $na;
+  $tb_nsc_end = $na;
+  $tb_new_cds = $na;
+  $tb_new_pep = $na;
+  $tb_kozak = $na;
+  $tb_cdslen = $na;
+  $tb_peplen = $na;
+  $tb_hg19_chr = $na;
+  $tb_hg19_pos = $na;
+  $tb_rsid = $na;
+  $tb_gid = $na;
+  $tb_gname = $na;
+  $tb_ucsc_id = $na;
+  $tb_refseq_id = $na;
+  $tb_symbol = $na;
+  $tb_des = $na;
+
   if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
     $row = $res -> fetch_assoc();
     $tb_chr = array_key_exists('chr', $row) ? $row['chr'] : $na;
@@ -111,7 +139,7 @@ if ($flag == 1) {
   }
   echo "<table class='nsc_table'>";
   echo "<tr><th>Position in Genome</th><td><table class='inner_table'><tr><td><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr$tb_chr:$tb_pos' target='_blank'>chr$tb_chr:$tb_pos</a>&nbsp;(GRCh38)</td><td align='right'><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr$tb_hg19_chr:$tb_hg19_pos' target='_blank'>chr$tb_hg19_chr:$tb_hg19_pos</a>&nbsp;(GRCh37)</td></tr></table></td></tr>";
-  echo "<tr><th>dbSNP RefSNP ID</th><td><a href='https://www.ncbi.nlm.nih.gov/snp/$tb_rsid' target='_blank'>$tb_rsid</a></td></tr>";
+  echo "<tr><th>dbSNP RefSNP ID</th><td>", ($tb_rsid == $na) ? "" : "<a href='https://www.ncbi.nlm.nih.gov/snp/$tb_rsid' target='_blank'>", "$tb_rsid</a></td></tr>";
   echo "<tr><th>Strand</th><td>$tb_str</td></tr>";
   echo "<tr><th>Alleles</th><td>$tb_ref>$tb_alt&nbsp;(Genome);&nbsp;&nbsp;&nbsp;&nbsp;$tb_t_ref>$tb_t_alt&nbsp;(Transcript)</td></tr>";
   echo "<tr><th>Position in Transcript</th><td>$tb_t_pos</td></tr>";
@@ -274,7 +302,24 @@ if ($flag == 1) {
   echo "<table class='nsc_table'>";
   echo "<tr><th>Kozak Sequence</th></tr>";
   echo "<tr><td>";
-  echo $tb_kozak;
+  echo "<table class='kozak_table'>";
+  echo "<tr>";
+  echo "<th>Observed</th>";
+  $i = 0;
+  while ($i < 12) {
+    echo "<td>", ($i >= 6 && $i <= 8) ? "<span style='color:red;'>" : "", substr($tb_kozak, $i, 1), ($i >= 6 && $i <= 8) ? "</span>" : "", "</td>";
+    $i++;
+  }
+  echo "</tr>";
+  echo "<tr>";
+  echo "<th>Pattern</th>";
+  $i = 1;
+  while ($i <= 12) {
+    echo "<td><img src='img/kozak_$i.png'></td>";
+    $i++;
+  }
+  echo "</tr>";
+  echo "</table>";
   echo "</td></tr>";
   echo "</table>";
 

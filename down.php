@@ -1,6 +1,6 @@
 <?php include('head.inc'); ?>
 
-<div class="title_one">Result</div>
+<div class="title1">Result</div>
 
 <?php
 
@@ -51,8 +51,8 @@ if ($flag != 0) {
     exec($cmd);
   }
   if (file_exists($target_output)) {
-    echo "<div align='center' style='font-size:1.5em;padding-bottom:10px;'><a href='/list.php?fid=$fid'>Browse the result</a></div>";
-    echo "<div align='center' style='font-size:1.5em;padding-bottom:10px;'><a href='$target_output'>Download the result</a></div>";
+    echo "<div align='center' style='font-size:20px;padding-bottom:10px;'><a href='/list.php?fid=$fid'>Browse the result</a></div>";
+    echo "<div align='center' style='font-size:20px;padding-bottom:10px;'><a href='$target_output'>Download the result</a></div>";
     echo "<div align='center'>Result ID (result can be retrieved in future using this ID):&nbsp;&nbsp;<span style='color:red;'>$fid</span></a></div>";
   }
 }
