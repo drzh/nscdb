@@ -130,6 +130,12 @@ if ($flag == 1) {
       $tb_symbol = array_key_exists('symbol', $row) ? $row['symbol'] : $na;
       $tb_des = array_key_exists('des', $row) ? $row['des'] : $na;
     }
+    $tb_score = $na;
+    $sql = "select * from kozak where kozak = '$tb_kozak';";
+    if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+      $row = $res -> fetch_assoc();
+      $tb_score = array_key_exists('score', $row) ? $row['score'] : $na;
+    }
     $f_1000g = 0;
     $sql = "select * from pop_1000g where chr = '$chr' and pos = $pos and alt = '$alt';";
     if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
@@ -152,6 +158,7 @@ if ($flag == 1) {
         }
       }
     }
+
     echo "<table class='nsc_table'>";
     echo "<tr><th>Position in Genome</th><td><table class='inner_table'><tr><td><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr$tb_chr:$tb_pos' target='_blank'>chr$tb_chr:$tb_pos</a>&nbsp;(GRCh38)</td><td align='right'><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr$tb_hg19_chr:$tb_hg19_pos' target='_blank'>chr$tb_hg19_chr:$tb_hg19_pos</a>&nbsp;(GRCh37)</td></tr></table></td></tr>";
     echo "<tr><th>dbSNP RefSNP ID</th><td>", ($tb_rsid == $na) ? "" : "<a href='https://www.ncbi.nlm.nih.gov/snp/$tb_rsid' target='_blank'>", "$tb_rsid</a></td></tr>";
@@ -160,46 +167,34 @@ if ($flag == 1) {
     echo "<tr><th>Position in Transcript</th><td>$tb_t_pos</td></tr>";
     echo "<tr><th>Frame of New CDS</th><td>$tb_frame</td></tr>";
     echo "<tr><th>Transcript ID</th><td><a href='https://useast.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=$tid' target='_blank'>$tb_tid</a>";
-    /* if ($tb_refseq_id != $na and $tb_refseq_id != '.') {
-     *   echo " | <a href='https://www.ncbi.nlm.nih.gov/nuccore/$tb_refseq_id' target='_blank'>$tb_refseq_id</a>";
-     * } */
-    /* if ($tb_ucsc_id != $na and $tb_ucsc_id != '.') {
-     *   echo "<br><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&singleSearch=knownCanonical&position=$tb_ucsc_id' target='_blank'>$tb_ucsc_id</a>";
-     * } */
     echo "</td></tr>";
     echo "<tr><th>Gene ID</th><td><a href='https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=$tb_gid' target='_blank'>$tb_gid</a></td></tr>";
     echo "<tr><th>Symbol</th><td>$tb_symbol</td></tr>";
     echo "<tr><th>Length of Novel CDS</th><td>$tb_cdslen nucleotides / $tb_peplen codons</td></tr>";
+    echo "<tr><th>Kozak Sequence (Score)</th><td>$tb_kozak ($tb_score)</td></tr>";
     // show allele frequency
     echo "<tr><th>Allele Frequency</th><td>";
     if ($f_1000g == 1) {
-      echo "1000G: ";
-      $pop = ['ALL', 'AFR', 'AMR', 'EAS', 'EUR', 'SAS'];
-      foreach ($pop as $p) {
-        if (array_key_exists($p, $tb_1000g_frq)) {
-          echo " $p=", $tb_1000g_frq[$p], ";";
-        }
+      echo "1000G:";
+      foreach ($tb_1000g_frq as $k => $v) {
+        echo " $k=$v;";
       }
     }
     if ($f_1000g == 1 && $f_exac == 1) {
       echo "<br>";
     }
     if ($f_exac == 1) {
-      echo "EXAC: ";
-      $pop = ['ALL', 'AFR', 'AMR', 'EAS', 'EUR', 'SAS'];
-      foreach ($pop as $p) {
-        if (array_key_exists($p, $tb_exac_frq)) {
-          echo " $p=", $tb_exac_frq[$p], ";";
-        }
+      echo "EXAC:";
+      foreach ($tb_exac_frq as $k => $v) {
+        echo " $k=$v;";
       }
     }
     if ($f_1000g == 0 && $f_exac == 0) {
       echo "N.A.";
     }
     echo "</td></tr>";
-    echo "<tr><th>Description</th><td>$tb_des</td></tr>";
+    echo "<tr><th>Gene Description</th><td>$tb_des</td></tr>";
     echo "</table>";
-    echo "<br>";
 
     // sequence info
     $sql = "select * from seq where chr = '$chr' and pos = $pos and ref = '$ref' and alt = '$alt' and tid = '$tid';";
@@ -214,7 +209,7 @@ if ($flag == 1) {
     echo "<table class='nsc_table'>";
     echo "<tr><th>Novel CDS and Peptide</th></tr>";
     echo "<tr><td align='center'>";
-    echo "<table><tr><td style='border:0px;'>";
+    echo "<table class='cds_table'><tr><td>";
     $nbeforecodon = 6;
     $nperline = 66;
     $i = 0;
@@ -310,10 +305,19 @@ if ($flag == 1) {
       echo "<div class='pep'>$pep</div>";
     }
 
-    echo "</td></td></table>";
     echo "</td></tr>";
-    echo "</table><br>";
-    
+    /* echo "<tr><td>&nbsp;</td></tr>"; */
+    echo "<tr><td style='padding-top:15px;'>";
+    echo "<span class='nuc'><span class='newstart'>ATG</span></span>&nbsp;-&nbsp;Novel Start Codon&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    echo "<span class='nuc'><span class='newstop'>   </span></span>&nbsp;-&nbsp;Stop Codon&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    echo "<span class='nuc'><span class='oldstart'>ATG</span></span>&nbsp;-&nbsp;Original Start Codon&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    echo "<span class='nuc'><span class='codon0'>   </span></span> or <span class='nuc'><span class='codon1'>   </span></span>&nbsp;-&nbsp;Codon";
+    echo "</td></tr>";
+    echo "</table>";
+    echo "</td></tr>";
+    echo "</table>";
+
+    // kozak seq
     echo "<table class='nsc_table'>";
     echo "<tr><th>Kozak Sequence</th></tr>";
     echo "<tr><td>";

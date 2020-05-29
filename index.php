@@ -12,12 +12,22 @@
 <div class="title1">Search</div>
 <form action="/list.php" method="get">
   <div align="center">
-    <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol, HGVS or search terms" >
-    <input class="submit1" type="submit" value="Submit"><br>
-    <div style="padding-top: 6px;">
-      e.g., <a onclick="javascript: document.getElementById('input1').value='9:100000-2000000'">9:100000-2000000</a>,
-      <a onclick="javascript: document.getElementById('input1').value='CETP'">CETP</a>,
-    </div>
+    <table>
+      <tr>
+        <td>
+          <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol, HGVS or search terms" >
+          <input class="submit1" type="submit" value="Submit" onclick="show_loader('loader1'); this.disabled=true;">
+          <div class="loader" id='loader1' style="display: none;"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          &nbsp;&nbsp;e.g., <a onclick="javascript: document.getElementById('input1').value='9:100000-6000000'">9:100000-6000000</a>,
+          <a onclick="javascript: document.getElementById('input1').value='CETP'">CETP</a>,
+          <a onclick="javascript: document.getElementById('input1').value='ENST00000540585'">ENST00000540585</a>
+        </td>
+      </tr>
+    </table>
   </div>
   <div class="title1">Filters</div>
   <table class="ft_table">
@@ -65,8 +75,16 @@
         <label>dbSNP</label>
       </td>
     </tr>
+    <tr>
+      <th>Kozak sequence score : </th>
+      <td>
+        <label>&nbsp;&#62;</label>&nbsp;
+        <input type="text" name="tx_kozak" size="2">
+        <label>&nbsp;&nbsp;(Input a number between -10 and 7.1)</label>
+      </td>
+    </tr>
   </table>
-    
 </form>
 
+<?php include('nsc.js'); ?>
 <?php include('tail.inc'); ?>

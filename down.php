@@ -13,7 +13,7 @@ $na = 'N.A.';
 
 $flag = 0;
 $target_dir = "upload/";
-if (isset($_POST['fid']) && strlen($_POST['fid']) == 44) {
+if (isset($_POST['fid']) && check_let_num($_POST['fid']) && strlen($_POST['fid']) == 44) {
   $fid = $_POST['fid'];
   $target_output = $target_dir . $fid . ".tsv";
   $flag = 2;
@@ -57,7 +57,7 @@ if ($flag != 0) {
   }
 }
 else {
-  echo "Upload failed.<br>";
+  echo "<div align='center'>No result found.</div>";
 }
 
 ?>

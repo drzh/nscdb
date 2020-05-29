@@ -28,22 +28,40 @@
 
 /* --- Loader begin ---  */
 
-#loader {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 1;
-  width: 50px;
-  height: 50px;
-  margin: -75px 0 0 -75px;
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid #00b4ab;
-  width: 100px;
-  height: 100px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
+.loader {
+    position: absolute;
+    display: inline;
+    /* left: 50%; */
+    /* top: 50%; */
+    /* z-index: 1; */
+    width: 10px;
+    height: 10px;
+    margin: 0 0 0 10px;
+    border: 10px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid #00b4ab;
+    width: 10px;
+    height: 10px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
 }
+
+/* #loader { */
+/*   position: absolute; */
+/*   left: 50%; */
+/*   top: 50%; */
+/*   z-index: 1; */
+/*   width: 50px; */
+/*   height: 50px; */
+/*   margin: -75px 0 0 -75px; */
+/*   border: 16px solid #f3f3f3; */
+/*   border-radius: 50%; */
+/*   border-top: 16px solid #00b4ab; */
+/*   width: 100px; */
+/*   height: 100px; */
+/*   -webkit-animation: spin 2s linear infinite; */
+/*   animation: spin 2s linear infinite; */
+/* } */
 
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
@@ -86,6 +104,10 @@
     padding: 10px 0px 5px 0px;
 }
 
+.container {
+    position: relative;
+}
+
 .center_block {
   align: center;
 }
@@ -105,7 +127,7 @@
 }
 
 .submit1:disabled {
-  background-color: #4CAF50;
+  background-color: #00b4ab;
   border: none;
   color: gray;
   font-size: 18px;
@@ -160,7 +182,7 @@
 }
 
 .ft_table {
-    font-family: verdana, arial, helvetica, sans-serif;
+    /* font-family: verdana, arial, helvetica, sans-serif; */
     font-size: 12px;
     width: 900px;
     border-collapse: collapse;
@@ -170,9 +192,9 @@
 
 .ft_table th {
     font-size: 1em;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding: 5px 10px 5px 10px;
+    /* padding-top: 10px; */
+    /* padding-bottom: 10px; */
+    padding: 7px 10px 7px 10px;
     text-align: right;
 }
 
@@ -228,9 +250,10 @@
 }
 
 .nsc_table {
-    font-family: verdana, arial, helvetica, sans-serif;
+    /* font-family: verdana, arial, helvetica, sans-serif; */
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 10px;
 }
 
 .nsc_table th {
@@ -241,7 +264,7 @@
     padding-bottom: 5px;
     background-color: #00b4ab;
     border: 1px solid #388e8e;
-    padding: 5px 10px 5px 10px;
+    padding: 3px 10px 3px 10px;
     text-align: left;
 }
 
@@ -249,6 +272,10 @@
     font-size: 15px;
     border: 1px solid #388e8e;
     padding: 3px 10px 3px 10px;
+}
+
+.cds_table td {
+    border: 0px;
 }
 
 .kozak_table {
@@ -335,7 +362,7 @@
 .footer {
     text-align: center;
     font-size: 12px;
-    padding: 5px 0px 0px 0px;
+    padding: 10px 0px 10px 0px;
 }
 
 .seq {

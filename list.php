@@ -27,6 +27,9 @@ if (isset($_GET['cb_exac'])) {
 if (isset($_GET['cb_dbsnp'])) {
   $ftstat['dbsnp'] = $_GET['cb_dbsnp'];
 }
+if (isset($_GET['tx_kozak'])) {
+  $ftstat['kozak'] = $_GET['tx_kozak'];
+}
 if (isset($_GET['fid'])) {
   $fid = $_GET['fid'];
 }
@@ -46,7 +49,7 @@ if (isset($_GET['n'])) {
 }
 
 $rows = [];
-
+$type = '';
 // Process key word
 if ($kw != '') {
   $type = 'text';
@@ -82,7 +85,7 @@ if ($kw != '') {
     $type = 'ucsc_id_m';
     $id_m = $mat[1];
   }
-  else if (preg_match('/^(N[MR]_\d{6})(\.\d+)*$/', $kw, $mat)) {
+  else if (preg_match('/^(N[MR]_\d+)(\.\d+)*$/', $kw, $mat)) {
     // refid;
     $type = 'refseq_id';
     $id_m = $mat[1];
@@ -97,48 +100,53 @@ if ($kw != '') {
     $text = $kw;
   }
 }
+else {
+  $type = 'all';
+}
 
 if ($fid != '') {
   $target_dir = "upload/";
   $target_output = $target_dir . $fid . ".tsv";
-  if ($fh = fopen($target_output, "r")) {
-    while(! feof($fh)) {
-      $line = rtrim(fgets($fh));
-      if (! preg_match('/^#/', $line)) {
-        if ($line != '') {
-          $e = explode("\t", $line);
-          $row = [
-            'chr' => $e[0],
-              'pos' => $e[1],
-              'ref' => $e[2],
-              'alt' => $e[3],
-              'str' => $e[4],
-              'tid' => $e[5],
-              't_pos' => $e[6],
-              't_ref' => $e[7],
-              't_alt' => $e[8],
-              'frame' => $e[9],
-              'end_before' => $e[10],
-              'nsc_start' => $e[11],
-              'nsc_end' => $e[12],
-              'new_cds' => $e[13],
-              'new_pep' => $e[14],
-              'kozak' => $e[15],
-              'symbol' => '.'
-          ];
-          $sql = "select * from gene where tid = '" . $row['tid'] . "';";
-          if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
-            $e = $res -> fetch_assoc();
-            $row['symbol'] = $e['symbol'];
+  if (file_exists($target_output)) {
+    if ($fh = fopen($target_output, "r")) {
+      while(! feof($fh)) {
+        $line = rtrim(fgets($fh));
+        if (! preg_match('/^#/', $line)) {
+          if ($line != '') {
+            $e = explode("\t", $line);
+            $row = [
+              'chr' => $e[0],
+                'pos' => $e[1],
+                'ref' => $e[2],
+                'alt' => $e[3],
+                'str' => $e[4],
+                'tid' => $e[5],
+                't_pos' => $e[6],
+                't_ref' => $e[7],
+                't_alt' => $e[8],
+                'frame' => $e[9],
+                'end_before' => $e[10],
+                'nsc_start' => $e[11],
+                'nsc_end' => $e[12],
+                'new_cds' => $e[13],
+                'new_pep' => $e[14],
+                'kozak' => $e[15],
+                'symbol' => '.'
+            ];
+            $sql = "select * from gene where tid = '" . $row['tid'] . "';";
+            if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+              $e = $res -> fetch_assoc();
+              $row['symbol'] = $e['symbol'];
+            }
+            $rows[] = $row;
           }
-          $rows[] = $row;
         }
       }
     }
-  } 
+  }
 }
-else if ($kw != '') {
-  // generate sql
+else if ($type != '') {
+  // generate sql for filters
   $sqlf = "";
   if (array_key_exists('frame', $ftstat)) {
     if ($ftstat['frame'] == '0') {
@@ -162,6 +170,11 @@ else if ($kw != '') {
     }
     else if ($ftstat['cds'] == 1) {
       $sqlf .= " and nsc.overlap_cds = 1";
+    }
+  }
+  if (array_key_exists('kozak', $ftstat)) {
+    if ($ftstat['kozak'] != '' && is_numeric($ftstat['kozak'])) {
+      $sqlf .= " and kozak.score > " . $ftstat['kozak'];
     }
   }
 
@@ -202,27 +215,41 @@ else if ($kw != '') {
   $sqlf .= $sqlfdb;
 
   $sqls = [];
-  $col = "nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol";
+  $col = "nsc.chr, nsc.pos, nsc.ref, nsc.alt, nsc.str, nsc.tid, nsc.t_pos, nsc.t_ref, nsc.t_alt, nsc.frame, nsc.end_before, nsc.nsc_start, nsc.nsc_end, gene.gid, gene.gname, gene.symbol, kozak.score";
+  $sqlpre = "select $col from nsc, gene, kozak where nsc.tid = gene.tid and nsc.kozak = kozak.kozak";
   if ($type == 'pos') {
-    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos = $pos" . $sqlf . $sqllimit;
+    $sql = "$sqlpre and nsc.chr = '$chr' and nsc.pos = $pos $sqlf $sqllimit";
     $sqls[] = $sql;
   }
   else if ($type == 'region') {
-    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2" . $sqlf . $sqllimit;
+    $sql = "$sqlpre and nsc.chr = '$chr' and nsc.pos >= $pos1 and nsc.pos <= $pos2 $sqlf $sqllimit";
     $sqls[] = $sql;
   }
   else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type == 'refseq_id') {
-    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and gene.$type = '$id_m'" . $sqlf . $sqllimit;
+    $sql = "$sqlpre and gene.$type = '$id_m' $sqlf $sqllimit";
     $sqls[] = $sql;
   }
-  else {
+  else if ($type == 'text') {
     $text_trim = trim($text);
     if (check_let_num_dot_under_dash($text_trim)) {
-      $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$text_trim' or gene.symbol = '$text_trim')" . $sqlf . $sqllimit;
+      $sql = "$sqlpre and (gene.gname = '$text_trim' or gene.symbol = '$text_trim') $sqlf $sqllimit";
       $sqls[] = $sql;
     }
     $text_trim = clean_string($text);
-    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against (\"$text_trim\" in natural language mode)" . $sqlf . $sqllimit;
+    $words = explode(' ', $text_trim);
+    $ws = [];
+    foreach ($words as $w) {
+      $w = trim($w);
+      if ($w != '') {
+        $ws[] = "+$w";
+      }
+    }
+    $text_r = implode(' ', $ws);
+    $sql = "$sqlpre and match(gene.des) against (\"$text_r\" in boolean mode) $sqlf $sqllimit";
+    $sqls[] = $sql;
+  }
+  else if ($type == 'all') {
+    $sql = "$sqlpre $sqlf $sqllimit";
     $sqls[] = $sql;
   }
 

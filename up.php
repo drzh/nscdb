@@ -14,20 +14,15 @@
   <div align="center">
     <label for="myfile">Select a file:</label>
     <input type="file" id="upfile" name="upfile">
-    <input class="submit1" type="submit" name="submit1" value="Upload" onclick="show_loader(); this.disabled=true;">
+    <input class="submit1" type="submit" name="submit1" value="Upload" onclick="show_loader('loader1'); this.disabled=true;">
+    <div class="loader" id="loader1" style="display: none;"></div>
     <div style="padding: 10px 0px 10px 0px;">Or</div>
     <label for="myfid">Retrieve the result by ID:</label>
     <input type="text" id="fid" name="fid" size="50">
-    <input class="submit1" type="submit" name="submit2" value="Submit" onclick="show_loader(); this.disabled=true;">
+    <input class="submit1" type="submit" name="submit2" value="Submit" onclick="show_loader('loader2'); this.disabled=true;">
+    <div class="loader" id="loader2" style="display: none;"></div>
   </div>
 </form>
 
-<div id="loader" style="display: none;"></div>
-
-<script type="text/javascript">
- function show_loader() {
-   document.getElementById("loader").style.display = "block";
- }
-</script>
-
+<?php include('nsc.js'); ?>
 <?php include('tail.inc'); ?>
