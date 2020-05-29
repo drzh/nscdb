@@ -1,5 +1,6 @@
 <?php
-include "dbconn.inc";
+include_once "dbconn.inc";
+include_once "func.inc";
 
 $kw = '';
 $ftstat = [];
@@ -91,6 +92,10 @@ if ($kw != '') {
     $type = 'fid';
     $fid = $mat[1];
   }
+  else {
+    $type = 'text';
+    $text = $kw;
+  }
 }
 
 if ($fid != '') {
@@ -132,7 +137,7 @@ if ($fid != '') {
     }
   } 
 }
-else {
+else if ($kw != '') {
   // generate sql
   $sqlf = "";
   if (array_key_exists('frame', $ftstat)) {
@@ -211,9 +216,13 @@ else {
     $sqls[] = $sql;
   }
   else {
-    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$kw' or gene.symbol = '$kw')" . $sqlf . $sqllimit;
-    $sqls[] = $sql;
-    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against ('$kw' in natural language mode)" . $sqlf . $sqllimit;
+    $text_trim = trim($text);
+    if (check_let_num_dot_under_dash($text_trim)) {
+      $sql = "select $col from nsc, gene where nsc.tid = gene.tid and (gene.gname = '$text_trim' or gene.symbol = '$text_trim')" . $sqlf . $sqllimit;
+      $sqls[] = $sql;
+    }
+    $text_trim = clean_string($text);
+    $sql = "select $col from nsc, gene where nsc.tid = gene.tid and  match(gene.des) against (\"$text_trim\" in natural language mode)" . $sqlf . $sqllimit;
     $sqls[] = $sql;
   }
 

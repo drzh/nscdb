@@ -20,5 +20,6 @@ include('menu.inc');
 ?>
 
 <?php
-include('dbconn.inc');
+include_once('dbconn.inc');
+include_once('func.inc');
 ?>
