@@ -1,6 +1,6 @@
 <?php include('head.inc'); ?>
 
-<div class="title1">Novel Start Codon Information</div>
+<div class="title1">Novel Start Codon Information<?php echo infolink('nscinfo'); ?></div>
 
 <?php
 $flag = 1;
@@ -160,7 +160,7 @@ if ($flag == 1) {
     }
 
     echo "<table class='nsc_table'>";
-    echo "<tr><th>Position in Genome</th><td><table class='inner_table'><tr><td><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr$tb_chr:$tb_pos' target='_blank'>chr$tb_chr:$tb_pos</a>&nbsp;(GRCh38)</td><td align='right'><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr$tb_hg19_chr:$tb_hg19_pos' target='_blank'>chr$tb_hg19_chr:$tb_hg19_pos</a>&nbsp;(GRCh37)</td></tr></table></td></tr>";
+    echo "<tr><th>Genome Position</th><td><table class='inner_table'><tr><td><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr$tb_chr:$tb_pos' target='_blank'>chr$tb_chr:$tb_pos</a>&nbsp;(GRCh38)</td><td align='right'><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr$tb_hg19_chr:$tb_hg19_pos' target='_blank'>chr$tb_hg19_chr:$tb_hg19_pos</a>&nbsp;(GRCh37)</td></tr></table></td></tr>";
     echo "<tr><th>dbSNP RefSNP ID</th><td>", ($tb_rsid == $na) ? "" : "<a href='https://www.ncbi.nlm.nih.gov/snp/$tb_rsid' target='_blank'>", "$tb_rsid</a></td></tr>";
     echo "<tr><th>Strand</th><td>$tb_str</td></tr>";
     echo "<tr><th>Alleles</th><td>$tb_ref>$tb_alt&nbsp;(Genome);&nbsp;&nbsp;&nbsp;&nbsp;$tb_t_ref>$tb_t_alt&nbsp;(Transcript)</td></tr>";

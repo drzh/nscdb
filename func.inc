@@ -19,4 +19,8 @@ function clean_string ($in) {
   return preg_replace('/["\\\]/', '', $in);
 }
 
+function infolink ($in) {
+  return "&nbsp;&nbsp;<a class='infolink' href='help.php?hid=$in'></a>";
+}
+
 ?>

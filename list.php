@@ -298,7 +298,7 @@ else {
       foreach ($_GET as $k => $v) {
         $expara .= "&$k=$v";
       }
-      echo "<span style='float: right; padding-bottom: 5px; font-weight: bold;'><a href='list.php?ex=1$expara'>Export records</a></span>";
+      echo "<span style='float: right; padding-bottom: 5px; font-weight: bold;'><a href='list.php?ex=1$expara'>Export records</a>", infolink('export'), "</span>";
 
       // output records
       echo "<table class='list_table'>";

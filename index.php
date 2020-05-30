@@ -9,7 +9,7 @@
 </div>
 <hr>
 
-<div class="title1">Search</div>
+<div class="title1">Search<?php echo infolink('search'); ?></div>
 <form action="/list.php" method="get">
   <div align="center">
     <table>
@@ -29,7 +29,7 @@
       </tr>
     </table>
   </div>
-  <div class="title1">Filters</div>
+  <div class="title1">Filters<?php echo infolink('filter'); ?></div>
   <table class="ft_table">
     <tr>
       <th>Frame of novel CDS : </th>
@@ -80,7 +80,7 @@
       <td>
         <label>&nbsp;&#62;</label>&nbsp;
         <input type="text" name="tx_kozak" size="2">
-        <label>&nbsp;&nbsp;(Input a number between -10 and 7.1)</label>
+        <label>&nbsp;&nbsp;(Input a number between -10 and 7.1)<?php echo infolink('kozak'); ?></label>
       </td>
     </tr>
   </table>
