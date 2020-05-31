@@ -176,13 +176,13 @@ if ($flag == 1) {
     echo "<tr><th>Strand</th><td>$tb_str</td></tr>";
     echo "<tr><th>Alleles</th><td>$tb_ref>$tb_alt&nbsp;(Genome);&nbsp;&nbsp;&nbsp;&nbsp;$tb_t_ref>$tb_t_alt&nbsp;(Transcript)</td></tr>";
     echo "<tr><th>Position in Transcript</th><td>$tb_t_pos</td></tr>";
-    echo "<tr><th>Frame of New CDS</th><td>$tb_frame</td></tr>";
+    echo "<tr><th>Frame of Novel CDS</th><td>$tb_frame</td></tr>";
     echo "<tr><th>Transcript ID</th><td><a href='https://useast.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=$tid' target='_blank'>$tb_tid</a>";
     echo "</td></tr>";
     echo "<tr><th>Gene ID</th><td><a href='https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=$tb_gid' target='_blank'>$tb_gid</a></td></tr>";
     echo "<tr><th>Symbol</th><td>$tb_symbol</td></tr>";
     echo "<tr><th>Length of Novel CDS</th><td>$tb_cdslen nucleotides / $tb_peplen codons</td></tr>";
-    echo "<tr><th>Kozak Sequence (Score)</th><td>$tb_kozak ($tb_score)</td></tr>";
+    /* echo "<tr><th>Kozak Sequence (Score)</th><td>$tb_kozak ($tb_score)</td></tr>"; */
     // show allele frequency
     echo "<tr><th>Allele Frequency</th><td>";
     $f_any = 0;
@@ -346,7 +346,7 @@ if ($flag == 1) {
 
     // kozak seq
     echo "<table class='nsc_table'>";
-    echo "<tr><th>Kozak Sequence</th></tr>";
+    echo "<tr><th>Kozak Sequence (Score: $tb_score)</th></tr>";
     echo "<tr><td>";
     echo "<table class='kozak_table'>";
     echo "<tr>";
