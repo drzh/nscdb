@@ -71,6 +71,8 @@
         <label>1000 Genomes</label>&nbsp;&nbsp;
         <input type="checkbox" name="cb_exac" checked="checked">
         <label>ExAC</label>&nbsp;&nbsp;
+        <input type="checkbox" name="cb_gnomad" checked="checked">
+        <label>gnomAD</label>&nbsp;&nbsp;
         <input type="checkbox" name="cb_dbsnp" checked="checked">
         <label>dbSNP</label>
       </td>

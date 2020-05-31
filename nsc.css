@@ -295,10 +295,10 @@
 }
 
 .kozak_table td {
-    font-size: 25px;
+    font-size: 20px;
     border: 0px;
     text-align: center;
-    padding: 0px 2px 0px 2px;
+    padding: 3px 2px 3px 2px;
 }
 
 .inner_table {

@@ -158,6 +158,17 @@ if ($flag == 1) {
         }
       }
     }
+    $f_gnomad = 0;
+    $sql = "select * from pop_gnomad where chr = '$chr' and pos = $pos and alt = '$alt';";
+    if (($res = $conn -> query($sql)) && ($res -> num_rows > 0)) {
+      $tb_gnomad_frq = [];
+      while($row = $res -> fetch_assoc()) {
+        if(array_key_exists('pop_grp', $row)) {
+          $f_gnomad = 1;
+          $tb_gnomad_frq[$row['pop_grp']] = $row['frq_show'];
+        }
+      }
+    }
 
     echo "<table class='nsc_table'>";
     echo "<tr><th>Genome Position</th><td><table class='inner_table'><tr><td><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr$tb_chr:$tb_pos' target='_blank'>chr$tb_chr:$tb_pos</a>&nbsp;(GRCh38)</td><td align='right'><a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr$tb_hg19_chr:$tb_hg19_pos' target='_blank'>chr$tb_hg19_chr:$tb_hg19_pos</a>&nbsp;(GRCh37)</td></tr></table></td></tr>";
@@ -174,23 +185,39 @@ if ($flag == 1) {
     echo "<tr><th>Kozak Sequence (Score)</th><td>$tb_kozak ($tb_score)</td></tr>";
     // show allele frequency
     echo "<tr><th>Allele Frequency</th><td>";
+    $f_any = 0;
     if ($f_1000g == 1) {
       echo "1000G:";
       foreach ($tb_1000g_frq as $k => $v) {
         echo " $k=$v;";
       }
+      $f_any = 1;
     }
-    if ($f_1000g == 1 && $f_exac == 1) {
-      echo "<br>";
-    }
+    /* if ($f_1000g == 1) {
+     *   echo "<br>";
+     * } */
     if ($f_exac == 1) {
+      if ($f_any == 1) {
+        echo "<br>";
+      }
       echo "EXAC:";
       foreach ($tb_exac_frq as $k => $v) {
         echo " $k=$v;";
       }
+      $f_any = 1;
     }
-    if ($f_1000g == 0 && $f_exac == 0) {
-      echo "N.A.";
+    if ($f_gnomad == 1) {
+      if ($f_any == 1) {
+        echo "<br>";
+      }
+      echo "gnomAD:";
+      foreach ($tb_gnomad_frq as $k => $v) {
+        echo " $k=$v;";
+      }
+      $f_any = 1;
+    }
+    if ($f_any == 0) {
+      echo $na;
     }
     echo "</td></tr>";
     echo "<tr><th>Gene Description</th><td>$tb_des</td></tr>";
@@ -323,7 +350,15 @@ if ($flag == 1) {
     echo "<tr><td>";
     echo "<table class='kozak_table'>";
     echo "<tr>";
-    echo "<th>Observed</th>";
+    echo "<th>Position</th>";
+    $i = -6;
+    while ($i < 6) {
+      echo "<td>", ($i >= 0 && $i <= 2) ? "<span style='color:red;'>" : "", $i, ($i >= 0 && $i <= 2) ? "</span>" : "", "</td>";
+      $i++;
+    }
+    echo "</tr>";
+    echo "<tr>";
+    echo "<th>Sequence</th>";
     $i = 0;
     while ($i < 12) {
       echo "<td>", ($i >= 6 && $i <= 8) ? "<span style='color:red;'>" : "", substr($tb_kozak, $i, 1), ($i >= 6 && $i <= 8) ? "</span>" : "", "</td>";

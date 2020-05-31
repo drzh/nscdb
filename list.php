@@ -24,6 +24,9 @@ if (isset($_GET['cb_1000g'])) {
 if (isset($_GET['cb_exac'])) {
   $ftstat['exac'] = $_GET['cb_exac'];
 }
+if (isset($_GET['cb_gnomad'])) {
+  $ftstat['gnomad'] = $_GET['cb_gnomad'];
+}
 if (isset($_GET['cb_dbsnp'])) {
   $ftstat['dbsnp'] = $_GET['cb_dbsnp'];
 }
@@ -196,6 +199,16 @@ else if ($type != '') {
       }
       else {
         $sqlfdb .= " or nsc.exac = 1";
+      }
+    }
+  }
+  if (array_key_exists('gnomad', $ftstat)) {
+    if ($ftstat['gnomad'] == 'on') {
+      if ($sqlfdb == '') {
+        $sqlfdb = " and (nsc.gnomad = 1";
+      }
+      else {
+        $sqlfdb .= " or nsc.gnomad = 1";
       }
     }
   }

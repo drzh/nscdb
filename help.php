@@ -52,11 +52,14 @@ if (isset($_GET['hid'])) {
   </p>
   <p class='ans'>
     <ul>
-      <li><i>Genome Position</i>: Genome position of the start-gain SNP. Both GRCh38(hg38) and GRCh37(hg19) positions were provided.
+      <li><i>Genome Position</i>: Genome position of the start-gain SNP. Both GRCh38(hg38) and GRCh37(hg19) positions were provided. External link to UCSC genome browser was provided.</li>
+      <li><i>dbSNP RefSNP ID</i>: SNP ID in dbSNP. External link to dbSNP was provided.</li>
+      <li><i>Strand</i>: The genome strand of transcript where the novel start codon is located.</li>
+      <li><i>Alleles</i>: The reference allele and alternative allele in the genome and transcript. If the transcript is on the '+' strand of the reference genome, the alleles in the genome are the same with the alleles in the transcript. If the transcript is on the '-' strand of the reference genome, the alleles in the genome are complementary with the alleles in the transcript.</li>
     </ul>
   </p>
   <p <?php echo "class='", ($hid == "samemut") ? "hl" : "que", "'"; ?> id='samemut'>
-    Why are there several records of novel start codons for the same mutation?
+    Why are there several records of novel start codons for the same SNP?
   </p>
   <p class='ans'>
     The same position in the genome can be expressed in different isoforms/transcripts of one gene. Thus one mutation can introduce novel start codons in multipe isoforms/transcripts from the same gene.
