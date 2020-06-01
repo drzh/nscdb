@@ -1,15 +1,17 @@
 <?php include('head.inc'); ?>
 
-<div class="info">
-  <font color="red">Welcome to Novel Start Codons Database:</font>
-  <ul style="margin-block-start: 0.5em">
-    <li>NSCDB provides information on SNPs that introduced potential novel start codons in the human genomes</li>
-    <li>You can search and browse the candidate novel start codons</li>
+<div class="title1">Predict the start-gain SNPs from the SNPs in you file</div>
+<div class="pred">
+  <ul>
+    <li>You can upload a file here to identify candidate start-gain SNPs. The uploaded file can be a plain text file or a gzip compressed file. There should be four columns seperated by tab in the file: 1. Chromosome; 2. Position; 3. Reference Allele; 4. Alternative Allele</li>
+    <li>Here is an <a href="example/input_example.txt" download>example file</a>.</li>
+    <li>The ouput file is a tab seperated plain text file.</li>
+    <li>If you have uploaded a file previously, you can also retrive the result by ID</li>
   </ul>
+  <hr>
 </div>
-<hr>
 
-<div class="title1">Upload your file</div>
+<div class="title1">Upload your file<?php echo infolink('upload'); ?></div>
 <form action="down.php" method="post" enctype="multipart/form-data">
   <div align="center">
     <label for="myfile">Select a file:</label>

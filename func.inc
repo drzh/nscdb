@@ -20,7 +20,7 @@ function clean_string ($in) {
 }
 
 function infolink ($in) {
-  return "&nbsp;&nbsp;<a class='infolink' href='help.php?hid=$in'></a>";
+  return "&nbsp;&nbsp;<a class='infolink' href='help.php?hid=$in#$in'></a>";
 }
 
 ?>

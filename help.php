@@ -7,8 +7,35 @@ if (isset($_GET['hid'])) {
 }
 ?>
 
-<div class='title1'>Help topics</div>
+<div class='title1'>Help Topics</div>
 <div class='help'>
+  <p <?php echo "class='", ($hid == "search") ? "hl" : "que", "'"; ?> id='search'>
+    How was start-gain SNPs and novel start codons were identified?
+  </p>
+  <p class='ans'>
+    All of the possible SNPs in the human genome were generated, and we identified all SNPs that changed non-AUG triple nucleotides to AUG (start-gain SNP) in the 5’UTR of a transcript. For each novel start codon, the sequence from that novel start codon was scaned towards downstream until a in-frame stop codon was found or the original start codon was met (if it's in the same frame with the novel CDS).
+  </p>
+  <p class='ans'>
+    For browsing purpose, only the start-gain SNPs existing in 1000 Genomes, ExAC, gnomAD and dbSNP were deposited to the databases.
+  </p>
+  <p class='ans'>
+    To identify the candidate start-gain SNPs from the user uploaded file, SNPs from the used uploaded file were compared with all possible start-gain SNPs in the genome, and any matched retult will be returned no matter whether it exists in 1000 Genomes, ExAC, gnomAD or dbSNP.
+  </p>
+
+  <p <?php echo "class='", ($hid == "search") ? "hl" : "que", "'"; ?> id='search'>
+    Genome build and annotation versions used to build NSCDB
+  </p>
+  <p class='ans'>
+    <ul>
+      <li><i>Human genome</i>: GRCh38</li>
+      <li><i>Annotation of transcripts</i>: Gencode v30</li>
+      <li><i>1000 Genomes Project</i>: Phase 3</li>
+      <li><i>ExAC</i>: r1</li>
+      <li><i>gnomAD</i>: v3</li>
+      <li><i>dbSNP</i>: 151</li>
+    </ul>
+  </p>
+
   <p <?php echo "class='", ($hid == "search") ? "hl" : "que", "'"; ?> id='search'>
     Terms that can be used to search the novel start codon mutations
   </p>
@@ -23,6 +50,7 @@ if (isset($_GET['hid'])) {
       <li><i>Description of the gene</i> (e.g., SH2 domain)</li>
     </ul>
   </p>
+
   <p <?php echo "class='", ($hid == "filter") ? "hl" : "que", "'"; ?> id='filter'>
     Filters used to select the records
   </p>
@@ -35,18 +63,21 @@ if (isset($_GET['hid'])) {
       <li>Kozak sequence score: Only show the novel start codon with a Kozak sequence with score greater than the given value.</li>
     </ul>
   </p>
+
   <p <?php echo "class='", ($hid == "kozak") ? "hl" : "que", "'"; ?> id='kozak'>
     Estimation of the Kozak sequence score
   </p>
   <p class='ans'>
     Based on the annotation from <a href="https://www.gencodegenes.org/human/release_30.html" target="_blank">GENCODE v30</a>,19,497 non-redundant transcripts with transcript supporting level 1 (TSL=1) were used to estimate the scoring matrix of the Kozak sequences. The nucleotide sequences from -6nt to 5nt (the position of the first nucleotide 'A' of the start codon 'ATG' was 0) around the start codon of each transcript was extracted to construct a scoring matrix representing the Kozak sequence feature. This scoring matrix was applied to calculate the Kozak sequence score for each potential novel start codons.
   </p>
+
   <p <?php echo "class='", ($hid == "export") ? "hl" : "que", "'"; ?> id='export'>
     Download the search result
   </p>
   <p class='ans'>
     Click the 'Export records' to download the search results. The downloaded file is a plain text file.
   </p>
+
   <p <?php echo "class='", ($hid == "nscinfo") ? "hl" : "que", "'"; ?> id='nscinfo'>
     Detailed information of start-gain SNP and novel start codon
   </p>
@@ -65,9 +96,22 @@ if (isset($_GET['hid'])) {
       <li><i>Allele Frequency</i>: Allele frequencies of the alternative allele (allele that introduce the novel start codon) from 1000 Genomes, ExAC and gnomAD datasets.</li>
       <li><i>Gene Description</i>: Description of the gene</li>
       <li><i>Novel CDS and Peptide</i>: The sequence of the novel CDS and peptide. The complete novel CDS and 6 nucleotides before the novel start codon were showed. The start-gain SNP was also showed at the corresponding position.</li>
-      <li><i>Kozak Sequence (Score)</i>: Kozak sequence around the novel start codon and its score. The length of the Kozak sequence included the 6 nucleotides before the start codon and 3 nucleotides after the start codon. If the novel start codon is within the first 6 nucleotides of the transcript, then the first few bases were represented as '.' to make the kozak sequence with a length of 12nt.</li>
+      <li><i>Kozak Sequence (Score)</i>: Kozak sequence around the novel start codon and its score. The length of the Kozak sequence included the 6 nucleotides before the start codon and 3 nucleotides after the start codon. If the novel start codon is within the first 6 nucleotides of the transcript, then the first few bases were represented as '.' to make the kozak sequence with a length of 12nt. The Kozak sequence motif constructed based on the Kozak sequence from know transcript was shown.</li>
     </ul>
   </p>
+
+  <p <?php echo "class='", ($hid == "upload") ? "hl" : "que", "'"; ?> id='upload'>
+    Upload your file to predict start-gain SNPs
+  </p>
+  <p class='ans'>
+    <ul>
+      <li>The file can be a plain text file or a gzip compressed file.</li>
+      <li>The file should have four columns: Chromosome, Position, Reference Allele and Alternative Allele</li>
+      <li>Example input file: <a href="example/input_example.txt" download>input_example.txt</a></li>
+      <li>The ouput file is a tab seperated plain text file.</li>
+    </ul>
+  </p>
+
   <p <?php echo "class='", ($hid == "samemut") ? "hl" : "que", "'"; ?> id='samemut'>
     Why are there several records of novel start codons for the same SNP?
   </p>
