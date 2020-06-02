@@ -15,7 +15,7 @@
     <table>
       <tr>
         <td>
-          <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol, HGVS or search terms" >
+          <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol or search terms" >
           <input class="submit1" type="submit" value="Submit" onclick="show_loader('loader1'); this.disabled=true;">
           <div class="loader" id='loader1' style="display: none;"></div>
         </td>
