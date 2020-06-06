@@ -15,7 +15,7 @@
     <table>
       <tr>
         <td>
-          <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, gene symbol or search terms" >
+          <input type="text" name="kw" id="input1" size="60" placeholder="enter position, region, RSID, gene symbol or other terms" >
           <input class="submit1" type="submit" value="Submit" onclick="show_loader('loader1'); this.disabled=true;">
           <div class="loader" id='loader1' style="display: none;"></div>
         </td>
@@ -23,7 +23,7 @@
       <tr>
         <td style='font-size:14px; color:#666666'>
           &nbsp;&nbsp;e.g., <a onclick="javascript: document.getElementById('input1').value='9:100000-6000000'">9:100000-6000000</a>,
-          <a onclick="javascript: document.getElementById('input1').value='rs1386166323'">rs1386166323</a>,
+          <a onclick="javascript: document.getElementById('input1').value='rs1251396750'">rs1251396750</a>,
           <a onclick="javascript: document.getElementById('input1').value='CETP'">CETP</a>,
           <a onclick="javascript: document.getElementById('input1').value='ENST00000540585'">ENST00000540585</a>
         </td>
