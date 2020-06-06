@@ -14,7 +14,8 @@
         <form method="get" action="list.php" id="searchform" style="display: inline">
           <div style="text-align: right; padding-right: 0px">
              <input id="input2" name="kw" size="20" style="display: inline">
-             <input class="submit2" name="submit2" type="submit" value="Search" style="display: inline; width: 53px"> (e.g., <a onclick="javascript: document.getElementById('input2').value='CETP'">CETP</a>)
+             <input class="submit2" name="submit2" type="submit" value="Search" style="display: inline; width: 53px">
+             <!-- (e.g., <a onclick="javascript: document.getElementById('input2').value='CETP'">CETP</a>) -->
           </div>
         </form>
       </td>

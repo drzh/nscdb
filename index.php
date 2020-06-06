@@ -21,8 +21,9 @@
         </td>
       </tr>
       <tr>
-        <td>
+        <td style='font-size:14px; color:#666666'>
           &nbsp;&nbsp;e.g., <a onclick="javascript: document.getElementById('input1').value='9:100000-6000000'">9:100000-6000000</a>,
+          <a onclick="javascript: document.getElementById('input1').value='rs1386166323'">rs1386166323</a>,
           <a onclick="javascript: document.getElementById('input1').value='CETP'">CETP</a>,
           <a onclick="javascript: document.getElementById('input1').value='ENST00000540585'">ENST00000540585</a>
         </td>

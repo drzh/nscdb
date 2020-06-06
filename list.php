@@ -93,6 +93,11 @@ if ($kw != '') {
     $type = 'refseq_id';
     $id_m = $mat[1];
   }
+  else if (preg_match('/^(rs\d+)$/', $kw, $mat)) {
+    // tid or tid_m;
+    $type = 'rsid';
+    $id_m = $mat[1];
+  }
   else if (preg_match('/(\d{12}\S{32})/', $kw, $mat)) {
     // fid;
     $type = 'fid';
@@ -240,6 +245,10 @@ else if ($type != '') {
   }
   else if ($type == 'tid_m' || $type == 'gid_m' || $type == 'ucsc_id_m' || $type == 'refseq_id') {
     $sql = "$sqlpre and gene.$type = '$id_m' $sqlf $sqllimit";
+    $sqls[] = $sql;
+  }
+  else if ($type == 'rsid') {
+    $sql = "$sqlpre and ((nsc.chr, nsc.pos, nsc.ref, nsc.alt) in (select dbsnp.chr, dbsnp.pos, dbsnp.ref, dbsnp.alt from dbsnp where dbsnp.rsid = '$id_m'))";
     $sqls[] = $sql;
   }
   else if ($type == 'text') {
